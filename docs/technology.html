@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>기술 · 시온</title>
+<meta name="description" content="화면을 살피고 회의를 받아 적는 것부터 안내를 들려주기까지 다섯 단계를 거쳐요. 성능과 회의 내용을 다루는 방식도 함께 적었어요.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="시온">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="기술 · 시온">
+<meta property="og:description" content="화면을 살피고 회의를 받아 적는 것부터 안내를 들려주기까지 다섯 단계를 거쳐요. 성능과 회의 내용을 다루는 방식도 함께 적었어요.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101318" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/SeeonText.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+
+<header class="site-head" id="site-head">
+  <div class="wrap head-row">
+    <a class="brand" href="index.html" aria-label="시온 첫 화면">
+      <svg class="seeon-mark" viewBox="0 0 256 238" aria-hidden="true">
+        <path d="M74.7 26.7Q20 2 20 62V176Q20 236 74.7 211.3" fill="none" stroke="currentColor" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M65.96 44.69L128.44 69.49A15 15 0 0 0 141.56 42.56L83.44 8.71Z" fill="currentColor"/>
+        <path d="M65.96 193.31L128.44 168.51A15 15 0 0 1 141.56 195.44L83.44 229.29Z" fill="currentColor"/>
+        <rect x="103" y="111" width="22" height="35" rx="11" fill="currentColor"/>
+        <rect x="134" y="92" width="22" height="68" rx="11" fill="currentColor"/>
+        <rect x="168" y="69" width="22" height="116" rx="11" fill="currentColor"/>
+        <rect x="202" y="87" width="22" height="82" rx="11" fill="currentColor"/>
+        <rect x="234" y="107" width="22" height="44" rx="11" fill="currentColor"/>
+      </svg>
+      <svg class="seeon-word" viewBox="0 0 280 37" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M42 4H11.25A7.25 7.25 0 0 0 11.25 18.5H34.75A7.25 7.25 0 0 1 34.75 33H4"/>
+          <path d="M62 4H100M62 18.5H100M62 33H100"/>
+          <path d="M119 4H158M119 18.5H158M119 33H158"/>
+          <path d="M187 4H208A10 10 0 0 1 218 14V23A10 10 0 0 1 208 33H187A10 10 0 0 1 177 23V14A10 10 0 0 1 187 4Z"/>
+          <path d="M234 33V4L276 33V4"/>
+        </g>
+      </svg>
+    </a>
+    <button class="menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="site-nav"><span class="bars3" aria-hidden="true"></span><span class="sr">메뉴 열기</span></button>
+    <nav class="nav" id="site-nav" aria-label="주 메뉴">
+      <ul>
+        <li><a href="experience.html">체험</a></li>
+        <li><a href="features.html">기능</a></li>
+        <li><a href="technology.html" aria-current="page">기술</a></li>
+        <li><a href="about.html">팀 소개</a></li>
+        <li><a href="faq.html">자주 묻는 질문</a></li>
+        <li class="pill"><a href="easy.html">쉬운 안내</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="page-head" aria-labelledby="ph-title">
+    <div class="wrap ph-inner">
+      <p class="sec-label">기술</p>
+      <h1 id="ph-title">시온이 판단하고 말하는 방식</h1>
+      <p class="sec-sub">화면을 살피고 회의를 받아 적는 것부터 안내를 들려주기까지 다섯 단계를 거쳐요. 성능과 회의 내용을 다루는 방식도 함께 적었어요.</p>
+      <ul class="ph-jump" aria-label="이 페이지의 내용"><li><a href="#how">다섯 단계</a></li><li><a href="#numbers">성능</a></li><li><a href="#privacy">회의 내용을 다루는 방식</a></li></ul>
+    </div>
+  </section>
+  <section class="sec alt" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="sec-label">만든 방식</p>
+        <h2 id="how-h">무엇을 말할지보다 언제 말하지 않을지를 먼저 고민했어요</h2>
+      </div>
+      <ol class="steps">
+        <li><span class="n" aria-hidden="true">01</span><h3>듣고 봐요</h3><p>공유된 화면을 0.4초마다 살피고, 회의 소리를 받아 적어요. 3초 넘게 머문 화면만 새 화면으로 쳐요.</p></li>
+        <li><span class="n" aria-hidden="true">02</span><h3>빈자리 후보를 찾아요</h3><p>‘이 부분’, ‘73%’, ‘많이 올랐죠’, ‘꽤 넓죠’, 자료를 띄우고 말이 멈춘 순간처럼 화면을 봐야 알 수 있는 여섯 가지 신호를 찾아요. 한국어는 형태소 분석으로 찾아서 조사 ‘이’나 ‘저는’의 ‘저’를 가리키는 말로 착각하지 않아요.</p></li>
+        <li><span class="n" aria-hidden="true">03</span><h3>말할지 판단해요</h3><p>앞뒤 말만 보고 이미 말로 설명됐는지 따져요. 이 단계에는 화면을 넣지 않아요. 알 수 있거나 애매하면 넘어가요.</p></li>
+        <li><span class="n" aria-hidden="true">04</span><h3>화면에서 근거를 찾아요</h3><p>빈자리라고 판단한 것만 화면에서 찾아요. 정해진 칸만 채우고 문장은 프로그램이 조립해요. 숫자는 화면 글자와 다시 맞춰 보고, 화면에 없으면 버려요.</p></li>
+        <li><span class="n" aria-hidden="true">05</span><h3>때를 골라 들려줘요</h3><p>직접 물은 질문의 답이 가장 먼저예요. 비슷한 안내를 방금 했거나 너무 늦어진 안내는 버리고, 문장이 끝나는 자리를 골라 넣어요.</p></li>
+      </ol>
+      <dl class="metrics two" id="numbers">
+        <div><dt>96.1</dt><dd><b>탐지 성능 · F1 점수</b>발표자의 말에서 화면을 봐야 알 수 있는 빈자리를 얼마나 정확히 찾는지 잰 값이에요. 한국어와 영어를 절반씩 섞은 3,600문항으로 쟀어요.</dd></div>
+        <div><dt>+20.8<small>%p</small></dt><dd><b>이해도 · 도달률 증가폭</b>화면을 보며 들었을 때 이해하는 정도를 100으로 두고, 회의 소리만 들을 때와 시온 해설을 함께 들을 때를 견줬어요. 시온 해설로 그만큼에 20.8%p 더 가까워졌어요. 강의·회의·보고 영상 30개로 쟀어요.</dd></div>
+      </dl>
+      <p class="fine">이해도는 사람 대신 다른 계열의 AI가 문제를 풀어 잰 값이에요. 같은 문제를 일반인 9명에게도 풀게 해서 AI의 결과가 사람의 결과와 같은 쪽을 가리키는지 확인했어요. 시각장애 당사자와 함께하는 평가는 2026년 11월에 할 예정이에요.</p>
+
+      <div class="privacy" id="privacy">
+        <h3>회의 내용은 밖으로 보내지 않아요</h3>
+        <ul>
+          <li><b>팀 서버 한 대에서 처리해요</b><p>화면 읽기, 받아쓰기, 판단, 해설, 음성까지 모델 다섯 가지를 시온 팀의 GPU 서버 한 대에서 돌려요. 회의 화면과 말을 외부 AI 서비스로 보내지 않아요.</p></li>
+          <li><b>공유된 화면만 봐요</b><p>회의 창에서 공유 화면 영역만 읽어요. 회의 소리는 파일로 남기지 않고, 일시정지를 누르면 화면 읽기와 해설이 바로 멈춰요.</p></li>
+          <li><b>기록은 내 컴퓨터에만 남아요</b><p>회의 스크립트와 요약은 내 컴퓨터의 문서 폴더에만 저장돼요. 서버와는 앱 전용 보안 연결로만 주고받아요.</p></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <span style="display:inline-flex;align-items:center;gap:10px" aria-label="시온 SEEON">
+          <svg class="seeon-mark" viewBox="0 0 256 238" aria-hidden="true">
+        <path d="M74.7 26.7Q20 2 20 62V176Q20 236 74.7 211.3" fill="none" stroke="currentColor" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M65.96 44.69L128.44 69.49A15 15 0 0 0 141.56 42.56L83.44 8.71Z" fill="currentColor"/>
+        <path d="M65.96 193.31L128.44 168.51A15 15 0 0 1 141.56 195.44L83.44 229.29Z" fill="currentColor"/>
+        <rect x="103" y="111" width="22" height="35" rx="11" fill="currentColor"/>
+        <rect x="134" y="92" width="22" height="68" rx="11" fill="currentColor"/>
+        <rect x="168" y="69" width="22" height="116" rx="11" fill="currentColor"/>
+        <rect x="202" y="87" width="22" height="82" rx="11" fill="currentColor"/>
+        <rect x="234" y="107" width="22" height="44" rx="11" fill="currentColor"/>
+      </svg>
+          <svg class="seeon-word" viewBox="0 0 280 37" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M42 4H11.25A7.25 7.25 0 0 0 11.25 18.5H34.75A7.25 7.25 0 0 1 34.75 33H4"/>
+          <path d="M62 4H100M62 18.5H100M62 33H100"/>
+          <path d="M119 4H158M119 18.5H158M119 33H158"/>
+          <path d="M187 4H208A10 10 0 0 1 218 14V23A10 10 0 0 1 208 33H187A10 10 0 0 1 177 23V14A10 10 0 0 1 187 4Z"/>
+          <path d="M234 33V4L276 33V4"/>
+        </g>
+      </svg>
+        </span>
+        <p class="foot-slogan">보이지 않는 화면을, 소리로 듣다.</p>
+        <p>발표자가 말하지 않은 화면 정보를 찾아, 회의 흐름을 끊지 않는 때에 짧게 들려주는 시각장애인용 화상회의 화면해설이에요.</p>
+      </div>
+      <div class="foot-cols">
+        <div>
+          <h2>둘러보기</h2>
+          <ul><li><a href="experience.html">체험</a></li><li><a href="features.html">기능</a></li><li><a href="technology.html">기술</a></li><li><a href="about.html">팀 소개</a></li></ul>
+        </div>
+        <div>
+          <h2>안내</h2>
+          <ul><li><a href="easy.html">쉬운 안내</a></li><li><a href="faq.html">자주 묻는 질문</a></li></ul>
+        </div>
+      </div>
+    </div>
+    <div class="foot-meta">
+      <dl class="foot-company">
+        <div><dt>팀</dt><dd>시온(SEEON, 視溫)</dd></div>
+        <div><dt>대표</dt><dd>김지오</dd></div>
+        <div><dt>이메일</dt><dd><a href="mailto:seeon0708@gmail.com">seeon0708@gmail.com</a></dd></div>
+      </dl>
+      <div class="foot-credit">
+        <span>© 2026 시온</span>
+        <span>사진: The Dafu, Compare Fibre, Reynier Carl, Compagnons, Christina @ wocintechchat.com · <a href="https://unsplash.com" rel="noopener">Unsplash</a></span>
+        <span>글꼴: Pretendard(SIL OFL 1.1)에서 이 사이트에 쓰는 글자만 남겨 썼어요</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
+</body>
+</html>

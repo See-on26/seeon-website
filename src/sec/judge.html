@@ -1,0 +1,39 @@
+  <section class="sec" id="judge" aria-labelledby="judge-h">
+    <div class="wrap judge">
+      <div class="judge-aside">
+        <div class="sec-head">
+          <p class="sec-label">시온의 판단</p>
+          <h2 id="judge-h">시온이라면 여기서 말할까요?</h2>
+          <p class="sec-sub">시온은 화면을 봐야만 알 수 있을 때만 말해요. 말만 들어도 알 수 있거나 애매하면 넘어가요. 직접 골라 보세요.</p>
+        </div>
+        <div class="stat">
+          <b>3,600문항으로 이 판단을 시험했어요</b>
+          <p>빈자리를 찾는 정확도는 F1 점수로 <strong>96.1</strong>이에요. 한국어와 영어 문항을 절반씩 섞었고, 같은 문장에 앞뒤 말만 바꿔서 앞뒤를 들어야만 맞힐 수 있게 만들었어요.</p>
+        </div>
+      </div>
+
+      <div class="quiz" id="quiz">
+        <div class="quiz-top"><span id="q-count">1 / 6</span><span class="q-dots" id="q-dots" aria-hidden="true"></span></div>
+        <div id="q-body">
+          <p class="q-context" id="q-context">화면: 분기별 매출 막대그래프</p>
+          <blockquote class="q-utter" id="q-utter">“보시는 것처럼 3분기가 제일 높습니다.”</blockquote>
+        </div>
+        <div class="q-actions" id="q-actions" role="group" aria-label="시온이 말할지 고르기">
+          <button class="q-btn" type="button" data-pick="speak">말해요</button>
+          <button class="q-btn" type="button" data-pick="quiet">넘어가요</button>
+        </div>
+        <div class="q-result" id="q-result" hidden>
+          <p class="q-verdict" id="q-verdict"></p>
+          <h3 id="q-res-h" tabindex="-1"></h3>
+          <p class="q-voice" id="q-voice" hidden></p>
+          <p class="q-why" id="q-why"></p>
+          <div><button class="btn btn-soft btn-sm" type="button" id="q-next">다음 문제</button></div>
+        </div>
+        <div class="q-end" id="q-end" hidden>
+          <p class="q-score" id="q-score" tabindex="-1"></p>
+          <p class="q-why">시온은 애매하면 말하지 않아요. 틀리거나 어색한 안내는 차라리 없는 편이 회의에 덜 방해되거든요.</p>
+          <div><button class="btn btn-soft btn-sm" type="button" id="q-retry">처음부터 다시 하기</button></div>
+        </div>
+      </div>
+    </div>
+  </section>

@@ -1,0 +1,54 @@
+  <section class="sec" id="listen" aria-labelledby="listen-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="sec-label">듣는 방식</p>
+        <h2 id="listen-h">회의 소리와 안내가 겹치지 않게</h2>
+        <p class="sec-sub">인터뷰에서 여러 번 들은 말이 있어요. “스크린리더 음성과 회의 참여자 음성이 겹쳐 혼란스러웠다”는 이야기였어요. 그래서 듣는 방식을 두 가지로 만들었어요. 듣는 기기에 맞게 고르면 돼요.</p>
+      </div>
+      <div class="listen">
+        <figure class="photo">
+          <img src="images/listen.jpg" alt="어두운 방에서 헤드폰을 쓴 사람이 창밖의 물가를 바라보고 있다." loading="lazy">
+        </figure>
+        <div class="listen-cards">
+          <div class="soft-card">
+            <p class="kicker">동시 방식</p>
+            <h3>양쪽 귀로 나눠 바로 들어요</h3>
+            <div class="ears">
+              <div class="ear"><b>왼쪽 귀</b><span>회의 소리</span></div>
+              <div class="ear r"><b>오른쪽 귀</b><span>시온의 안내</span></div>
+            </div>
+            <div class="duck" aria-hidden="true">
+              <div class="duck-row"><span>회의 소리</span><span class="meter m-meet"><i></i></span><span class="val">−12dB</span></div>
+              <div class="duck-row"><span>시온 안내</span><span class="meter m-seeon"><i></i></span><span class="val">말하는 중</span></div>
+            </div>
+            <p>시온이 말하는 동안 회의 소리를 12dB 줄였다가 되돌려요. 회의를 늦추지 않아서 실시간으로 들을 수 있어요. 양쪽 소리가 나뉘는 이어폰이나 헤드폰에 잘 맞아요.</p>
+          </div>
+          <div class="soft-card">
+            <p class="kicker">교차 방식</p>
+            <h3>회의를 잠깐 멈추고 끼워 넣어요</h3>
+            <ol class="sic-steps">
+              <li><b>1</b>문장이 끝나는 자리에서 회의 소리를 잠깐 멈춰요</li>
+              <li><b>2</b>그 틈에 시온이 안내해요</li>
+              <li><b>3</b>늦어진 만큼 조금 빠르게 틀어 따라잡아요</li>
+            </ol>
+            <div class="mode-switch" role="group" aria-label="교차 방식의 설정">
+              <button type="button" data-profile="quality" aria-pressed="false">품질</button>
+              <button type="button" data-profile="balanced" aria-pressed="true">균형</button>
+              <button type="button" data-profile="speed" aria-pressed="false">성능</button>
+            </div>
+            <div class="sic-viz" id="sic-viz" data-profile="balanced" aria-hidden="true">
+              <div class="sv-row"><span class="sv-lab">원래 회의</span>
+                <div class="sv-lane sv-orig"><span class="sp" data-k="0" style="left:0;width:30%"></span><span class="sp" data-k="1" style="left:36%;width:26%"></span><span class="sp" data-k="2" style="left:68%;width:26%"></span></div>
+              </div>
+              <div class="sv-row"><span class="sv-lab">내 귀에</span>
+                <div class="sv-lane"><span class="sp" data-k="0" style="left:0;width:30%"></span><span class="se" style="left:31%;width:12%">시온</span><span class="sp fast p-b" data-k="1"></span><span class="sp p-c" data-k="2"></span><b class="rate" id="sic-rate"></b></div>
+              </div>
+              <div class="sv-row"><span></span><div class="sv-ticks"><span>0초</span><span>5초</span><span>10초</span><span>15초</span></div></div>
+            </div>
+            <p class="sic-desc" id="sic-desc" aria-live="polite"></p>
+            <p>스피커로 들어도 소리가 겹치지 않아요. 안내가 6초 넘게 밀리면 새 안내는 버리고 회의를 먼저 들려줘요.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

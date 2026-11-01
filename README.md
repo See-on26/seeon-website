@@ -106,7 +106,7 @@ GitHub Pages에는 평가 서버(Node·데이터베이스)가 없어서, 서버�
 
 `src/experience/visitor.html` · `js/visitor.js` · `css/visitor.css`. 한 사람에 3분쯤 걸려요. 첫 화면의 세 단계(시온 STORY → SEEON 들어보기 → 퀴즈)는 오른쪽이 뾰족한 화살표로 이어져 있어요.
 
-1. **시온 STORY** — 실사 바탕 위에 내레이터가 들려주는 다큐 형식의 25~30초 영상이에요. 줄마다 내레이션(`story/n1.mp3` …)을 틀고, 그동안 장면을 천천히 움직이며 CC 자막(검은 바탕 흰 글씨)을 띄워요. 시작 5초 뒤 오른쪽 아래에 **건너뛰기**, 끝나면 아래에 **넘기기**가 나와요. 문장·장면은 `src/experience/story/story.json`. 내레이션은 ElevenLabs 로 만들어 같은 이름으로 덮어써요(`src/experience/story/README.md`, `tools/elevenlabs_story.py`). 지금 들어 있는 것은 임시 음성(`tools/story_tts.py`)이에요.
+1. **시온 STORY** — 실사 영상(Pexels 무료 영상 5개, `story/footage/`) 위에 내레이터가 들려주는 다큐 형식의 25~30초 영상이에요. 줄마다 내레이션(`story/n1.mp3` …)을 틀고, 그동안 장면을 천천히 움직이며 CC 자막(검은 바탕 흰 글씨)을 띄워요. 시작 5초 뒤 오른쪽 아래에 **건너뛰기**, 끝나면 아래에 **넘기기**가 나와요. 문장·장면은 `src/experience/story/story.json`. 내레이션은 ElevenLabs 로 만들어 같은 이름으로 덮어써요(`src/experience/story/README.md`, `tools/elevenlabs_story.py`). 지금 들어 있는 것은 임시 음성(`tools/story_tts.py`)이에요.
 2. **SEEON 들어보기** — 소금 섭취량 영상의 "WHO에서 하루 권장량이…"부터 "저염식을 할 수 있을까?"까지를 1.4배속(해설도 1.4배속)으로, 화면과 함께 틀어요(15초 안쪽). 발표자 말은 흰 CC 자막, 시온 해설은 「(시온 AD)」를 붙인 한 줄 자막으로 나와요. 다 보면 **다음으로**를 눌러 넘어가요. 구간·속도는 `visitor.json` 의 `demo`, 자막은 `clips.salt.subs`.
 3. **퀴즈** — 예상 시간(약 1분 30초)을 위에 적고, 빈자리 찾기 5문제(글·소리로 내고 트리거 낱말은 파란색) 또는 화면 없이 듣고 맞히기 1문제(보기 4개) 중 하나를 골라요. 해설 자막은 「(시온 AD)」를 붙여 한 줄로 나와요.
 4. **완료** — "STAFF에게 이 화면을 보여 주고 간식 뽑기에 참여하세요". 처음으로는 1초 길게 눌러야 돌아가요.

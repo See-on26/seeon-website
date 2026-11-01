@@ -5,21 +5,89 @@
     "rate": "+0%",
     "note": "지금 mp3 는 임시 음성(Edge)이다. ElevenLabs 로 만든 파일을 같은 이름(n1.mp3 …)으로 덮어쓰면 그대로 쓰인다. story/README.md 참고."
   },
-  "gap": 0.3,
+  "gap": 0.6,
   "lines": [
-    { "id": "n1", "shot": "meeting", "say": "오늘도 화상회의가 시작됩니다." },
-    { "id": "n2", "shot": "screen", "say": "발표자는 화면을 띄우고 말합니다. “여기를 보시면…”" },
-    { "id": "n3", "shot": "listen", "say": "하지만 화면을 볼 수 없다면, ‘여기’는 어디일까요?" },
-    { "id": "n4", "shot": "braille", "say": "시각장애인 열에 아홉은, 놓친 회의 흐름을 다시 따라가기 어렵다고 말합니다." },
-    { "id": "n5", "shot": "hero", "say": "그래서 우리는 시온을 만들었습니다." },
-    { "id": "n6", "shot": "end", "say": "말로 채워지지 않은 화면의 빈자리를, 소리로 채웁니다." }
+    {
+      "id": "n1",
+      "shot": "meeting",
+      "say": "오늘도 화상회의가 시작됩니다."
+    },
+    {
+      "id": "n2",
+      "shot": "presenter",
+      "say": "발표자는 화면을 띄우고 말합니다. “여기를 보시면…”"
+    },
+    {
+      "id": "n3",
+      "shot": "blind",
+      "say": "하지만 화면을 볼 수 없다면, ‘여기’는 어디일까요?"
+    },
+    {
+      "id": "n4",
+      "shot": "braille",
+      "say": "시각장애인 열에 아홉은, 놓친 회의 흐름을 다시 따라가기 어렵다고 말합니다."
+    },
+    {
+      "id": "n5",
+      "shot": "headphones",
+      "say": "그래서 우리는 시온을 만들었습니다."
+    },
+    {
+      "id": "n6",
+      "shot": "end",
+      "say": "말로 채워지지 않은 화면의 빈자리를, 소리로 채웁니다."
+    }
   ],
   "shots": {
-    "meeting": { "image": "../images/meeting.jpg", "from": { "scale": 1.04, "x": 0, "y": 2 }, "to": { "scale": 1.16, "x": -3, "y": 0 } },
-    "screen": { "image": "../images/meeting.jpg", "from": { "scale": 1.5, "x": -14, "y": -10 }, "to": { "scale": 1.72, "x": -18, "y": -13 } },
-    "listen": { "image": "../images/listen.jpg", "position": "50% 70%", "from": { "scale": 1.18, "x": 0, "y": 0 }, "to": { "scale": 1.04, "x": 0, "y": 2 } },
-    "braille": { "image": "../images/braille.jpg", "from": { "scale": 1.05, "x": 2, "y": 0 }, "to": { "scale": 1.18, "x": -2, "y": -2 } },
-    "hero": { "image": "../images/hero.jpg", "position": "70% 40%", "from": { "scale": 1.12, "x": 3, "y": 0 }, "to": { "scale": 1.02, "x": 0, "y": 0 } },
-    "end": { "card": "보이지 않는 화면을, 소리로 듣다." }
-  }
+    "meeting": {
+      "video": "story/footage/meeting.mp4",
+      "from": {
+        "scale": 1.0
+      },
+      "to": {
+        "scale": 1.07
+      }
+    },
+    "presenter": {
+      "video": "story/footage/presenter.mp4",
+      "from": {
+        "scale": 1.04,
+        "x": 1
+      },
+      "to": {
+        "scale": 1.0
+      }
+    },
+    "blind": {
+      "video": "story/footage/blind.mp4",
+      "from": {
+        "scale": 1.0
+      },
+      "to": {
+        "scale": 1.08
+      }
+    },
+    "braille": {
+      "video": "story/footage/braille.mp4",
+      "from": {
+        "scale": 1.06
+      },
+      "to": {
+        "scale": 1.0
+      }
+    },
+    "headphones": {
+      "video": "story/footage/headphones.mp4",
+      "from": {
+        "scale": 1.0
+      },
+      "to": {
+        "scale": 1.06
+      }
+    },
+    "end": {
+      "card": "보이지 않는 화면을, 소리로 듣다."
+    }
+  },
+  "footage": "Pexels 무료 영상(Pexels License, 출처 표기 필요 없음). meeting 5486225 cottonbro studio · presenter 6285682 · blind 10140872 cottonbro studio · braille 10140877 cottonbro studio · headphones 5704050. 9초씩 잘라 720p·무음으로 다시 인코딩."
 }

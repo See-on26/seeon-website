@@ -371,14 +371,19 @@ async function playStory(r) {
     h('div', { class: 'v-film-wrap' }, film, h('div', { class: 'v-progress', 'aria-hidden': 'true' }, fill)),
     after);
 
+  const footage = new Map(); // 장면 이름 → 미리 받아 둔 영상
   const setShot = (name, ms) => {
     if (name === shownShot) return;
     shownShot = name;
     const shot = story.shots?.[name];
     const next = layers[1 - front];
     const prev = layers[front];
-    clear(next, shotBody(shot));
-    const media = next.firstChild;
+    const media = (shot?.video && footage.get(name)) || shotBody(shot);
+    clear(next, media);
+    if (shot?.video) {
+      media.currentTime = 0;
+      media.play().catch(() => {});
+    }
     if (media && !shot?.card && !reducedMotion()) {
       media.style.transition = 'none';
       media.style.transform = shotTransform(shot?.from);
@@ -402,6 +407,7 @@ async function playStory(r) {
     clearInterval(timer);
     current?.pause();
     skip.hidden = true;
+    footage.forEach((v) => v.pause());
   };
   const goDemo = () => {
     if (screen !== 'story' || run !== r) return;
@@ -416,14 +422,24 @@ async function playStory(r) {
   });
   local.signal.addEventListener('abort', finish, { once: true });
 
-  // 줄마다 길이를 먼저 재고(전체 진행 막대와 장면 길이에 쓴다), 장면 사진도 미리 받아 둔다(첫 장면이 검게 비지 않게)
+  // 줄마다 길이를 먼저 재고(전체 진행 막대와 장면 길이에 쓴다), 장면 사진·영상도 미리 받아 둔다(장면이 검게 비지 않게)
   const images = Object.values(story.shots || {}).filter((s) => s.image).map((s) => new Promise((resolve) => {
     const img = new Image();
     img.onload = img.onerror = resolve;
     img.src = s.image;
     setTimeout(resolve, 4000);
   }));
-  const [loaded] = await Promise.all([Promise.all(lines.map(loadLineAudio)), Promise.all(images)]);
+  const clips = Object.entries(story.shots || {}).filter(([, s]) => s.video).map(([name, s]) => new Promise((resolve) => {
+    const v = shotBody(s);
+    v.autoplay = false;
+    v.preload = 'auto';
+    footage.set(name, v);
+    v.addEventListener('canplaythrough', resolve, { once: true });
+    v.addEventListener('error', resolve, { once: true });
+    setTimeout(resolve, 5000);
+    v.load();
+  }));
+  const [loaded] = await Promise.all([Promise.all(lines.map(loadLineAudio)), Promise.all(images), Promise.all(clips)]);
   if (local.signal.aborted) return;
   const total = loaded.reduce((s, x) => s + x.dur, 0) + (gapMs / 1000) * Math.max(0, lines.length - 1);
   let base = 0;

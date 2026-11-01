@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "showUnknown": false,
+    "allowReplay": false,
+    "messageCorrect": "",
+    "messageWrong": ""
+  },
+  "items": []
+}

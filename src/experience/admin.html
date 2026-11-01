@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEEON 관리자</title>
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin">
+  <div id="login" class="login-wrap" hidden>
+    <form class="card login-card" id="login-form">
+      <a class="brand" href="index.html" data-logo="관리자" aria-label="SEEON 처음 화면"></a>
+      <h1>관리자 로그인</h1>
+      <div class="field">
+        <label for="login-password">비밀번호</label>
+        <input type="password" id="login-password" autocomplete="current-password" required>
+      </div>
+      <p class="error-text" id="login-error" role="alert"></p>
+      <button type="submit" class="btn btn-primary btn-lg btn-block">로그인</button>
+      <p class="muted small" style="margin-top:14px"><a href="index.html">← 처음 화면으로</a></p>
+    </form>
+  </div>
+
+  <div id="shell" class="shell" hidden>
+    <aside class="side">
+      <a class="brand" href="index.html" data-logo="관리자" aria-label="SEEON 처음 화면"></a>
+      <nav class="side-nav" id="side-nav" aria-label="관리 메뉴"></nav>
+      <button type="button" class="btn btn-ghost btn-sm side-logout" id="logout">로그아웃</button>
+    </aside>
+    <main class="admin-main" id="view" tabindex="-1"></main>
+  </div>
+
+  <script type="module" src="js/admin/main.js"></script>
+</body>
+</html>

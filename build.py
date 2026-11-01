@@ -4,6 +4,7 @@
 - 스타일·스크립트·글꼴은 docs/assets/ 의 파일 하나씩을 모든 페이지가 함께 쓴다.
 - 글꼴은 Pretendard 에서 사이트에 쓰는 글자만 남겨 woff2 로 만든다.
   OFL 의 예약 글꼴 이름(Pretendard) 때문에 줄인 글꼴은 이름을 SeeonText 로 바꾼다.
+- 체험(src/experience/)은 seeon-eval-web 의 화면을 옮긴 것이라 조립하지 않고 그대로 docs/experience/ 로 복사한다.
 
     pip install -r requirements.txt
     python build.py
@@ -27,7 +28,7 @@ EMAIL = 'seeon0708@gmail.com'
 TAGLINE = '발표자가 말하지 않은 화면 정보를 찾아, 회의 흐름을 끊지 않는 때에 짧게 들려주는 시각장애인용 화상회의 화면해설이에요.'
 
 NAV = [
-    ('experience', 'experience.html', '체험'),
+    ('experience', 'experience/index.html', '체험'),
     ('features', 'features.html', '기능'),
     ('technology', 'technology.html', '기술'),
     ('about', 'about.html', '팀 소개'),
@@ -153,7 +154,7 @@ HOME_GO = '''  <section class="sec" id="go" aria-labelledby="go-h">
         <h2 id="go-h">시온을 더 알아보세요</h2>
       </div>
       <div class="go">
-        <a href="experience.html"><span class="k">체험</span><b>눈을 감고 회의를 들어 보세요</b><p>예시 회의를 시온 없이, 또 시온과 함께 들어 보고, 시온이 언제 말할지 직접 골라 봐요.</p><span class="arr" aria-hidden="true">들어 보기 →</span></a>
+        <a href="experience/index.html"><span class="k">체험</span><b>화면 없이, 소리만으로 풀어 보세요</b><p>발표 화면을 가린 채 시온의 해설을 듣고 퀴즈를 풀어 보는 체험과, 성능 평가 실험으로 들어가요.</p><span class="arr" aria-hidden="true">체험하러 가기 →</span></a>
         <a href="features.html"><span class="k">기능</span><b>말이 비는 순간에, 꼭 필요한 만큼만</b><p>가리킨 곳, 숫자의 뜻, 크기, 화면 전환까지 시온이 말해 주는 순간들과 듣는 방식을 모았어요.</p><span class="arr" aria-hidden="true">기능 보기 →</span></a>
         <a href="technology.html"><span class="k">기술</span><b>언제 말하지 않을지를 먼저 정했어요</b><p>판단과 해설이 이루어지는 다섯 단계, 성능, 회의 내용을 다루는 방식을 적었어요.</p><span class="arr" aria-hidden="true">기술 보기 →</span></a>
         <a href="about.html"><span class="k">팀 소개</span><b>쓰실 분들의 이야기에서 시작했어요</b><p>시각장애인 24명의 설문과 11명의 인터뷰, 만든 사람들, 앞으로의 계획이에요.</p><span class="arr" aria-hidden="true">팀 소개 보기 →</span></a>
@@ -166,12 +167,6 @@ PAGES = {
     'index': dict(
         file='index.html', title='시온 · 시각장애인을 위한 화상회의 화면해설', nav=None, desc=TAGLINE,
         body=section('top') + section('why') + HOME_NUMBERS + HOME_GO,
-    ),
-    'experience': subpage(
-        'experience.html', 'experience', '체험', '시온을 직접 들어 보세요',
-        '예시 회의 장면을 시온 없이 한 번, 시온과 함께 한 번 들어 보세요. 시온이 어느 자리에서 말하고 어느 자리에서 넘어가는지도 직접 골라 볼 수 있어요.',
-        [('demo', '예시 회의 듣기'), ('judge', '시온의 판단 맞혀 보기')],
-        section('demo') + section('judge'),
     ),
     'features': subpage(
         'features.html', 'features', '기능', '시온이 말해 주는 순간들',
@@ -267,6 +262,22 @@ FAVICON = MARK.replace('<svg class="seeon-mark" viewBox="0 0 256 238" aria-hidde
                        '  <style>svg { color: #0067f2; } @media (prefers-color-scheme: dark) { svg { color: #5aa9ff; } }</style>')
 
 
+# 예전 체험 페이지(experience.html) 주소로 들어오면 새 체험으로 보낸다. 예전 페이지는 archive/experience-v1/ 에 있다.
+OLD_EXPERIENCE = '''<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url=experience/index.html">
+<title>체험 · 시온</title>
+</head>
+<body>
+<p><a href="experience/index.html">체험 페이지로 이동해요</a></p>
+</body>
+</html>
+'''
+
+
 def subset_font(text, out):
     opts = subset.Options()
     opts.flavor = 'woff2'
@@ -313,6 +324,8 @@ def main():
     subset_font(''.join(pages.values()) + css + js, OUT / FONT_FILE)
     shutil.copy(FONT_LICENSE, OUT / 'assets' / 'fonts' / 'LICENSE-Pretendard.txt')
     shutil.copytree(SRC / 'images', OUT / 'images')
+    shutil.copytree(SRC / 'experience', OUT / 'experience')
+    (OUT / 'experience.html').write_text(OLD_EXPERIENCE, encoding='utf-8')
     (OUT / '.nojekyll').write_text('', encoding='utf-8')
 
     for f in sorted(p for p in OUT.rglob('*') if p.is_file()):

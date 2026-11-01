@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEEON 성능 평가 실험</title>
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" id="home-link" data-logo="성능 평가 실험" aria-label="SEEON 처음 화면"></a>
+  </header>
+  <button type="button" class="fs-toggle" id="fs-toggle" hidden>⛶ 전체 화면 켜기</button>
+  <main class="page" id="app" tabindex="-1" aria-live="polite"></main>
+
+  <div class="stage exp-stage" id="stage" hidden>
+    <div class="stage-main">
+      <div class="stage-track" id="stage-track"></div>
+      <div class="stage-media">
+        <video id="video" playsinline></video>
+        <div class="listening" id="listening">
+          <div class="wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <p>소리를 잘 들어 주세요</p>
+        </div>
+      </div>
+      <div class="stage-subs" id="stage-subs" hidden aria-live="off">
+        <p class="sub-line sub-ad" id="sub-ad"></p>
+        <p class="sub-line sub-speech" id="sub-speech"></p>
+      </div>
+      <div class="stage-status" id="stage-status" aria-live="off"></div>
+      <div class="stage-progress" aria-hidden="true"><div id="stage-bar"></div></div>
+    </div>
+    <aside class="stage-notes" id="stage-notes" hidden>
+      <label for="stage-notes-text">메모</label>
+      <textarea id="stage-notes-text" spellcheck="false" placeholder="들으면서 자유롭게 적으세요. 문제를 풀 때 다시 볼 수 있습니다."></textarea>
+      <p class="stage-notes-hint">메모는 이 영상의 문제를 다 풀면 지워집니다.</p>
+    </aside>
+  </div>
+
+  <script type="module" src="js/experiment.js"></script>
+</body>
+</html>

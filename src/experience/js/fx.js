@@ -1,4 +1,4 @@
-// 메인·체험 화면의 움직임: 실사 배경, 파형, 글자 뒤섞기, 사운드
+// 메인·체험 화면의 움직임: 실사 배경, 파형, 글자 뒤섞기
 export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // ---------- 실사 배경: 마우스 둘레가 밝아지고 사진이 살짝 따라 움직인다. show()로 다른 사진으로 바꾼다 ----------
@@ -199,68 +199,6 @@ export function scramble(el, text = el.dataset.text ?? el.textContent, { frames 
     else el.textContent = text;
   };
   step();
-}
-
-// ---------- 사운드: 잔잔한 배경음 + 마우스를 올릴 때 짧은 소리 ----------
-let audio = null;
-
-function ensureAudio() {
-  if (audio) return audio;
-  const Ctx = window.AudioContext || window.webkitAudioContext;
-  if (!Ctx) return null;
-  const actx = new Ctx();
-  const master = actx.createGain();
-  master.gain.value = 0;
-  master.connect(actx.destination);
-  const filter = actx.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.value = 700;
-  filter.Q.value = 0.7;
-  filter.connect(master);
-  for (const [f, type, g] of [[110, 'sine', 0.5], [164.8, 'sine', 0.32], [220.4, 'triangle', 0.12], [329.6, 'sine', 0.06]]) {
-    const o = actx.createOscillator();
-    const gain = actx.createGain();
-    o.type = type;
-    o.frequency.value = f;
-    gain.gain.value = g;
-    o.connect(gain).connect(filter);
-    o.start();
-  }
-  const lfo = actx.createOscillator();
-  const lfoGain = actx.createGain();
-  lfo.frequency.value = 0.07;
-  lfoGain.gain.value = 260;
-  lfo.connect(lfoGain).connect(filter.frequency);
-  lfo.start();
-  audio = { actx, master, on: false };
-  return audio;
-}
-
-export function setAmbient(on) {
-  const a = ensureAudio();
-  if (!a) return false;
-  a.on = on;
-  if (on && a.actx.state === 'suspended') a.actx.resume();
-  const now = a.actx.currentTime;
-  a.master.gain.cancelScheduledValues(now);
-  a.master.gain.setTargetAtTime(on ? 0.06 : 0, now, on ? 0.8 : 0.25);
-  return on;
-}
-
-export function tick(freq = 1320) {
-  if (!audio?.on) return;
-  const { actx } = audio;
-  const o = actx.createOscillator();
-  const g = actx.createGain();
-  o.type = 'sine';
-  o.frequency.value = freq;
-  const now = actx.currentTime;
-  g.gain.setValueAtTime(0.0001, now);
-  g.gain.exponentialRampToValueAtTime(0.05, now + 0.008);
-  g.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
-  o.connect(g).connect(actx.destination);
-  o.start(now);
-  o.stop(now + 0.1);
 }
 
 export const storage = {

@@ -1,8 +1,7 @@
-import { reducedMotion, setAmbient, startScene, startWaves, storage, tick } from './fx.js';
+import { reducedMotion, startScene, startWaves, storage } from './fx.js';
 import { markSvg, mountLogos, wordmarkSvg } from './logo.js';
 
 const INTRO_KEY = 'seeon.intro.seen';
-const SOUND_KEY = 'seeon.sound';
 
 mountLogos();
 const scene = startScene(document.getElementById('backdrop'));
@@ -51,12 +50,11 @@ function runIntro() {
 }
 runIntro();
 
-// ---------- 카드: 올리면 배경이 그 갈래의 사진으로 바뀌고 파형이 커진다(글자 뒤섞기 연출은 정신없다는 의견으로 뺐다, 2026-10-20) ----------
-document.querySelectorAll('.gate').forEach((gate, i) => {
+// ---------- 카드·관리자 버튼: 올리면 배경이 그 갈래의 사진으로 바뀌고 파형이 커진다(글자 뒤섞기 연출은 정신없다는 의견으로 뺐다, 2026-10-20) ----------
+document.querySelectorAll('.gate, .admin-link').forEach((gate) => {
   const enter = () => {
     scene.show(gate.dataset.shot);
-    waves.setEnergy(1.15);
-    tick(1100 + i * 220);
+    waves.setEnergy(gate.classList.contains('gate') ? 1.15 : 0.8);
   };
   const leave = () => {
     scene.reset();
@@ -66,26 +64,4 @@ document.querySelectorAll('.gate').forEach((gate, i) => {
   gate.addEventListener('focus', enter);
   gate.addEventListener('pointerleave', leave);
   gate.addEventListener('blur', leave);
-  gate.addEventListener('click', () => tick(1760));
 });
-
-// ---------- 사운드 켜기/끄기 (기본은 꺼짐) ----------
-const soundBtn = document.getElementById('sound');
-const soundLabel = document.getElementById('sound-label');
-function applySound(on) {
-  const ok = setAmbient(on);
-  soundBtn.setAttribute('aria-pressed', String(on && ok !== false));
-  soundLabel.textContent = on ? 'SOUND ON' : 'SOUND OFF';
-  waves.setEnergy(on ? 0.85 : 0.55);
-}
-soundBtn.addEventListener('click', () => {
-  const on = soundBtn.getAttribute('aria-pressed') !== 'true';
-  storage.set(SOUND_KEY, on ? 'on' : 'off');
-  applySound(on);
-  tick(1500);
-});
-// 브라우저는 클릭 전에 소리를 못 내므로, 켜 둔 상태였다면 첫 클릭 때 다시 켠다
-if (storage.get(SOUND_KEY) === 'on') {
-  soundLabel.textContent = 'SOUND ON';
-  window.addEventListener('pointerdown', () => applySound(true), { once: true });
-}

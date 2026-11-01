@@ -86,9 +86,9 @@ function showIntro() {
   start.addEventListener('pointerenter', () => waves.setEnergy(1.1));
   start.addEventListener('pointerleave', () => waves.setEnergy(0.55));
   const flow = [
-    ['01 LISTEN', '소리 듣기', '화면을 가린 채 발표 한 장면을 듣습니다.'],
-    ['02 ANSWER', '문제 풀기', '들은 내용으로 문제 하나를 풉니다.'],
-    ['03 REVEAL', '화면 보기', '같은 부분을 이번엔 화면과 함께 봅니다.'],
+    ['LISTEN', '소리 듣기', '화면을 가린 채 발표 한 장면을 듣습니다.'],
+    ['ANSWER', '문제 풀기', '들은 내용으로 문제 하나를 풉니다.'],
+    ['REVEAL', '화면 보기', '같은 부분을 이번엔 화면과 함께 봅니다.'],
   ];
   view(
     -1,

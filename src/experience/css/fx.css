@@ -1,33 +1,40 @@
-/* 어두운 화면 공통 배경: 점 격자 + 아래쪽 파란 빛 + 떠다니는 글자 + 파형 canvas (메인·체험 퀴즈) */
-.backdrop { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-.grid-dots {
-  position: absolute; inset: -2px;
-  background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1.2px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 30%, transparent 85%);
+/* 어두운 화면 공통 배경: 실사 사진 + 마우스를 따라 밝아지는 빛 + 아래쪽 소리 파형 (메인·체험 퀴즈)
+   사진은 천천히 다가오고, 마우스 쪽으로 살짝 움직이며, 마우스 둘레만 어둠이 걷힌다. 카드를 고르면 그 갈래의 사진으로 바뀐다. */
+.backdrop {
+  --mx: 64%; --my: 40%;
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; background: #03060c;
 }
-.glow {
-  position: absolute; left: 50%; bottom: -30vh; width: 140vw; height: 80vh; transform: translateX(-50%);
-  background: radial-gradient(ellipse at center, rgb(0 103 242 / 0.28), rgb(0 103 242 / 0.06) 45%, transparent 70%);
+.scene { position: absolute; inset: -24px; transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0); }
+.shot {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0;
+  transition: opacity 0.9s ease;
+  animation: drift 36s ease-in-out infinite alternate;
 }
-.spot {
-  position: absolute; left: 0; top: 0; width: 640px; height: 640px; margin: -320px 0 0 -320px; border-radius: 50%;
-  background: radial-gradient(circle, rgb(90 169 255 / 0.12), transparent 65%);
-  transform: translate3d(50vw, 40vh, 0); transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+.shot.is-on { opacity: 1; }
+.shot[data-shot='listen'] { object-position: 50% 72%; }
+.shot[data-shot='hero'] { object-position: 72% 40%; }
+.shot[data-shot='meeting'] { object-position: 60% 50%; }
+.shot[data-shot='braille'] { object-position: 50% 45%; }
+@keyframes drift { from { transform: scale(1.02); } to { transform: scale(1.1); } }
+/* 손전등처럼 마우스 둘레만 밝다 */
+.veil {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle min(22vmax, 260px) at var(--mx) var(--my), rgb(255 242 224 / 0.09), transparent 70%),
+    radial-gradient(circle min(46vmax, 620px) at var(--mx) var(--my), rgb(3 6 12 / 0) 0%, rgb(3 6 12 / 0.22) 45%, rgb(3 6 12 / 0.6) 100%);
+}
+/* 글자가 읽히도록 왼쪽·위·아래를 어둡게 */
+.scrim {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgb(3 6 12 / 0.6) 0%, rgb(3 6 12 / 0) 22%, rgb(3 6 12 / 0) 58%, rgb(3 6 12 / 0.88) 100%),
+    linear-gradient(90deg, rgb(3 6 12 / 0.84) 0%, rgb(3 6 12 / 0.55) 46%, rgb(3 6 12 / 0.2) 100%);
+}
+.quiz-page .scrim { background: linear-gradient(180deg, rgb(3 6 12 / 0.72), rgb(3 6 12 / 0.62) 45%, rgb(3 6 12 / 0.9)); }
+@media (max-width: 900px) {
+  .scrim { background: linear-gradient(180deg, rgb(3 6 12 / 0.62), rgb(3 6 12 / 0.74) 40%, rgb(3 6 12 / 0.92)); }
 }
 #waves { position: absolute; inset: 0; width: 100%; height: 100%; }
-.ghost-letters span {
-  position: absolute; left: var(--x); top: var(--y);
-  font-size: clamp(120px, 17vw, 300px); font-weight: 150; line-height: 1; color: #dbe7ff;
-  opacity: 0; filter: blur(14px);
-  animation: ghost 12s ease-in-out var(--d) infinite;
-}
-@keyframes ghost {
-  0% { opacity: 0; filter: blur(16px); transform: translate3d(0, 12px, 0) scale(0.98); }
-  35% { opacity: 0.16; filter: blur(5px); }
-  55% { opacity: 0.12; filter: blur(3px); transform: translate3d(0, -8px, 0) scale(1); }
-  100% { opacity: 0; filter: blur(18px); transform: translate3d(0, -26px, 0) scale(1.02); }
-}
 
 
 /* 로고 소리 막대가 숨 쉬듯 움직이는 표시 */
@@ -50,8 +57,8 @@
 .quiz-page .topbar, .quiz-page .page { position: relative; z-index: 1; }
 .topbar-meta { color: var(--muted); font-size: 11px; letter-spacing: 0.2em; }
 .quiz-page .card {
-  border-radius: 6px; backdrop-filter: blur(6px);
-  background: linear-gradient(180deg, rgb(255 255 255 / 0.065), rgb(255 255 255 / 0.025));
+  border-radius: 6px; backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgb(12 17 27 / 0.74), rgb(8 12 20 / 0.62));
 }
 .hud-card { position: relative; }
 .eyebrow-mono { font-family: var(--mono); color: var(--accent-text); font-size: 12px; letter-spacing: 0.24em; margin: 0 0 14px; }
@@ -68,7 +75,6 @@
 .listen-mark .seeon-mark { width: 120px; height: auto; color: var(--brand, #0067f2); }
 
 @media (prefers-reduced-motion: reduce) {
-  .ghost-letters span, .mark-live .mark-bar { animation: none; }
-  .ghost-letters span { opacity: 0.08; filter: blur(6px); }
-  .spot { transition: none; }
+  .shot, .mark-live .mark-bar { animation: none; }
+  .shot { transition: none; }
 }

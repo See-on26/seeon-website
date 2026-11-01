@@ -1,7 +1,62 @@
-// 메인·체험 화면의 움직임: 파형 배경, 글자 뒤섞기, 사운드
+// 메인·체험 화면의 움직임: 실사 배경, 파형, 글자 뒤섞기, 사운드
 export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ---------- 흐르는 음성 파형 (canvas) ----------
+// ---------- 실사 배경: 마우스 둘레가 밝아지고 사진이 살짝 따라 움직인다. show()로 다른 사진으로 바꾼다 ----------
+export function startScene(root) {
+  const scene = root.querySelector('.scene');
+  const shots = [...root.querySelectorAll('.shot')];
+  const still = reducedMotion();
+  const p = { x: 0.64, y: 0.4, tx: 0.64, ty: 0.4 };
+  let raf = 0;
+  let leaveTimer = 0;
+
+  // 첫 사진만 바로 받고, 나머지는 화면이 다 뜬 뒤에 받는다
+  const loadRest = () => {
+    for (const s of shots) {
+      if (s.dataset.src) {
+        s.src = s.dataset.src;
+        delete s.dataset.src;
+      }
+    }
+  };
+  if (document.readyState === 'complete') loadRest();
+  else window.addEventListener('load', loadRest, { once: true });
+
+  const apply = () => {
+    root.style.setProperty('--mx', `${(p.x * 100).toFixed(2)}%`);
+    root.style.setProperty('--my', `${(p.y * 100).toFixed(2)}%`);
+    scene.style.setProperty('--tx', `${((0.5 - p.x) * 32).toFixed(1)}px`);
+    scene.style.setProperty('--ty', `${((0.5 - p.y) * 20).toFixed(1)}px`);
+  };
+  const loop = () => {
+    p.x += (p.tx - p.x) * 0.08;
+    p.y += (p.ty - p.y) * 0.08;
+    apply();
+    raf = Math.abs(p.tx - p.x) + Math.abs(p.ty - p.y) > 0.0005 ? requestAnimationFrame(loop) : 0;
+  };
+  const onMove = (e) => {
+    p.tx = e.clientX / Math.max(1, window.innerWidth);
+    p.ty = e.clientY / Math.max(1, window.innerHeight);
+    if (!raf) raf = requestAnimationFrame(loop);
+  };
+  if (!still) window.addEventListener('pointermove', onMove, { passive: true });
+  apply();
+
+  function show(name) {
+    clearTimeout(leaveTimer);
+    const target = shots.find((s) => s.dataset.shot === name) || shots[0];
+    if (target.dataset.src) loadRest();
+    for (const s of shots) s.classList.toggle('is-on', s === target);
+  }
+  // 카드 사이를 옮겨 다닐 때 첫 사진으로 깜박이지 않게 조금 기다렸다가 돌아간다
+  function reset(delay = 260) {
+    clearTimeout(leaveTimer);
+    leaveTimer = setTimeout(() => show(shots[0].dataset.shot), delay);
+  }
+  return { show, reset };
+}
+
+// ---------- 흐르는 음성 파형 (canvas): 사진 위에 얇은 흰 선으로 ----------
 export function startWaves(canvas, { lines = 7, baseline = 0.66, intensity = 1, bars = true } = {}) {
   const ctx = canvas.getContext('2d');
   const still = reducedMotion();
@@ -40,7 +95,6 @@ export function startWaves(canvas, { lines = 7, baseline = 0.66, intensity = 1, 
     energy += (target - energy) * 0.05;
     pointer.x += (pointer.tx - pointer.x) * 0.06;
     ctx.clearRect(0, 0, w, h);
-    ctx.globalCompositeOperation = 'lighter';
     const base = h * baseline;
     const ampMax = Math.min(h * 0.15, 130) * energy * intensity;
 
@@ -52,7 +106,7 @@ export function startWaves(canvas, { lines = 7, baseline = 0.66, intensity = 1, 
         const u = x / w;
         const v = 0.25 + 0.75 * Math.abs(Math.sin(u * 23 + t * 1.3) * Math.sin(u * 7 - t * 0.7));
         const len = ampMax * 1.2 * envelope(u) * v;
-        ctx.strokeStyle = `rgba(0, 103, 242, ${0.1 + 0.18 * v})`;
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.06 + 0.12 * v})`;
         ctx.beginPath();
         ctx.moveTo(x, base - len);
         ctx.lineTo(x, base + len);
@@ -62,12 +116,12 @@ export function startWaves(canvas, { lines = 7, baseline = 0.66, intensity = 1, 
 
     for (const wv of waves) {
       const grad = ctx.createLinearGradient(0, 0, w, 0);
-      const a = wv.main ? 0.95 : 0.22 + wv.amp * 0.2;
-      grad.addColorStop(0, 'rgba(0, 103, 242, 0)');
-      grad.addColorStop(0.3, `rgba(0, 103, 242, ${a})`);
-      grad.addColorStop(0.5, `rgba(110, 178, 255, ${a})`);
-      grad.addColorStop(0.7, `rgba(0, 103, 242, ${a})`);
-      grad.addColorStop(1, 'rgba(0, 103, 242, 0)');
+      const a = wv.main ? 0.9 : 0.14 + wv.amp * 0.16;
+      grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+      grad.addColorStop(0.3, `rgba(255, 255, 255, ${a})`);
+      grad.addColorStop(0.5, `rgba(198, 224, 255, ${a})`);
+      grad.addColorStop(0.7, `rgba(255, 255, 255, ${a})`);
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
       ctx.beginPath();
       for (let x = 0; x <= w; x += 4) {
         const u = x / w;
@@ -78,14 +132,13 @@ export function startWaves(canvas, { lines = 7, baseline = 0.66, intensity = 1, 
         if (x === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
-      ctx.lineWidth = wv.main ? 2 : 1;
+      ctx.lineWidth = wv.main ? 1.6 : 1;
       ctx.strokeStyle = grad;
-      ctx.shadowBlur = wv.main ? 14 : 0;
-      ctx.shadowColor = 'rgba(0, 103, 242, 0.9)';
+      ctx.shadowBlur = wv.main ? 8 : 0;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
       ctx.stroke();
     }
     ctx.shadowBlur = 0;
-    ctx.globalCompositeOperation = 'source-over';
   }
 
   const loop = (now) => {

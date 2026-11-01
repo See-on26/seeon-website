@@ -1,11 +1,12 @@
-import { reducedMotion, setAmbient, startWaves, storage, tick } from './fx.js';
+import { reducedMotion, setAmbient, startScene, startWaves, storage, tick } from './fx.js';
 import { markSvg, mountLogos, wordmarkSvg } from './logo.js';
 
 const INTRO_KEY = 'seeon.intro.seen';
 const SOUND_KEY = 'seeon.sound';
 
 mountLogos();
-const waves = startWaves(document.getElementById('waves'));
+const scene = startScene(document.getElementById('backdrop'));
+const waves = startWaves(document.getElementById('waves'), { lines: 5, intensity: 0.6, baseline: 0.86 });
 
 // ---------- 로딩 연출 (탭마다 처음 한 번) ----------
 function reveal() {
@@ -50,19 +51,17 @@ function runIntro() {
 }
 runIntro();
 
-// ---------- 마우스를 따라오는 빛 ----------
-const spot = document.getElementById('spot');
-window.addEventListener('pointermove', (e) => {
-  spot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-});
-
-// ---------- 카드: 올리면 파형이 커진다(글자 뒤섞기 연출은 정신없다는 의견으로 뺐다, 2026-10-20) ----------
+// ---------- 카드: 올리면 배경이 그 갈래의 사진으로 바뀌고 파형이 커진다(글자 뒤섞기 연출은 정신없다는 의견으로 뺐다, 2026-10-20) ----------
 document.querySelectorAll('.gate').forEach((gate, i) => {
   const enter = () => {
+    scene.show(gate.dataset.shot);
     waves.setEnergy(1.15);
     tick(1100 + i * 220);
   };
-  const leave = () => waves.setEnergy(0.55);
+  const leave = () => {
+    scene.reset();
+    waves.setEnergy(0.55);
+  };
   gate.addEventListener('pointerenter', enter);
   gate.addEventListener('focus', enter);
   gate.addEventListener('pointerleave', leave);

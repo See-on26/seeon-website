@@ -1,5 +1,5 @@
 import { $, api, clear, fmtClock, h, toast } from './common.js';
-import { scramble, startWaves } from './fx.js';
+import { scramble, startScene, startWaves } from './fx.js';
 import { markSvg, mountLogos } from './logo.js';
 import { exitFullscreen, LockedPlayer, requestFullscreen } from './player.js';
 
@@ -16,9 +16,8 @@ let video = $('#video');
 
 mountLogos();
 $('#listen-mark').innerHTML = markSvg({ label: '' });
-const waves = startWaves($('#waves'), { intensity: 0.75, baseline: 0.8 });
-const spot = $('#spot');
-window.addEventListener('pointermove', (e) => (spot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`));
+startScene($('#backdrop'));
+const waves = startWaves($('#waves'), { lines: 5, intensity: 0.6, baseline: 0.88 });
 
 function view(step, ...children) {
   stage.hidden = true;

@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#03060c">
-  <title>SEEON 체험 퀴즈</title>
+  <title>SEEON 일반객 체험</title>
   <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="fonts/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/fx.css">
+  <link rel="stylesheet" href="css/visitor.css">
 </head>
-<body class="theme-dark quiz-page">
+<body class="theme-dark quiz-page visitor-page">
   <div class="backdrop" id="backdrop" aria-hidden="true">
     <div class="scene">
       <img class="shot is-on" data-shot="listen" src="../images/listen.jpg" alt="" decoding="async">
@@ -21,21 +22,11 @@
   </div>
 
   <header class="topbar">
-    <a class="brand" href="index.html" data-logo="체험 퀴즈" aria-label="SEEON 처음 화면"></a>
+    <a class="brand" href="index.html" data-logo="일반객 체험" aria-label="SEEON 체험 첫 화면"></a>
     <span class="mono topbar-meta">EXPERIENCE WITH HEADPHONES</span>
   </header>
   <main class="page" id="app" tabindex="-1" aria-live="polite"></main>
 
-  <div class="stage" id="stage" hidden>
-    <video id="video" playsinline></video>
-    <div class="listening" id="listening">
-      <div class="listen-mark mark-live" id="listen-mark" aria-hidden="true"></div>
-      <p>화면은 가려져 있어요. 소리에 집중해 주세요</p>
-    </div>
-    <div class="stage-status mono" id="stage-status"></div>
-    <div class="stage-progress" aria-hidden="true"><div id="stage-bar"></div></div>
-  </div>
-
-  <script type="module" src="js/quiz.js"></script>
+  <script type="module" src="js/visitor.js"></script>
 </body>
 </html>

@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+
+# 부스 전용 체험 데이터(비공개 저장소 seeon-booth-data 에서 복사해 온다)
+src/experience/data/visitor/
+docs/experience/data/visitor/

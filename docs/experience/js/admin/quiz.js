@@ -122,7 +122,7 @@ export async function render(root) {
   clear(root,
     viewHead('체험 퀴즈', '일반객 체험 부스용. 켜 둔 퀴즈 중 하나가 무작위로 나옵니다(같은 퀴즈가 연달아 나오지 않음).',
       h('button', { type: 'button', class: 'btn btn-primary', onClick: () => edit(null) }, '+ 퀴즈 추가'),
-      h('a', { class: 'btn', href: 'quiz.html', target: '_blank' }, '체험 화면 열기')),
+      h('a', { class: 'btn', href: 'visitor.html', target: '_blank' }, '체험 화면 열기')),
     table(
       [
         { label: '제목', render: (q) => q.title },

@@ -7,7 +7,7 @@
 | 페이지 | 파일 | 내용 |
 | --- | --- | --- |
 | 홈 | `index.html` | 첫 화면, 만든 까닭(설문), 성능 두 가지, 각 페이지로 가는 길 |
-| 체험 | `experience/` | seeon-eval-web 화면 그대로 — 일반객(체험 퀴즈) · 실험자 · 관리자 |
+| 체험 | `experience/` | seeon-eval-web 화면을 옮긴 체험 첫 화면 — 일반객(부스 체험) · 실험자 · 관리자 |
 | 기능 | `features.html` | 시온이 말해 주는 순간 9가지, 듣는 방식(동시·교차) |
 | 기술 | `technology.html` | 다섯 단계, 성능, 회의 내용을 다루는 방식 |
 | 팀 소개 | `about.html` | 당사자의 이야기, 앞으로의 계획, 만든 사람들 |
@@ -31,10 +31,11 @@ seeon-website/
 │  ├─ easy.html        쉬운 안내 페이지
 │  ├─ logo-mark.svg, logo-word.svg
 │  ├─ images/          사진 원본
-│  └─ experience/      체험 — seeon-eval-web/public 을 옮긴 것 (아래 「체험」 참고)
+│  └─ experience/      체험 — seeon-eval-web/public 을 옮긴 것과 일반객 체험(visitor.html, story/) (아래 「체험」 참고)
 ├─ archive/            사이트에 나오지 않는 임시 보관 (예전 체험 페이지: experience-v1/)
 ├─ fonts/              Pretendard Variable 원본과 라이선스
 ├─ build.py            src/ → docs/ 조립, 글꼴 줄이기
+├─ tools/story_tts.py  일반객 체험 「시온 이야기」 음성 만들기
 └─ requirements.txt
 ```
 
@@ -88,48 +89,28 @@ python build.py
 | 화면 가운데의 파란 파형 | 아래쪽의 얇은 흰 파형. 마우스 위치와 카드에 반응하는 것은 그대로예요 |
 | 떠다니는 SEEON 글자 | 사진이 천천히 다가오는 움직임 |
 
-기본 사진은 `listen.jpg` 이고, 체험 퀴즈 화면도 같은 사진을 써요. 움직임 줄이기를 켠 기기에서는 사진이 움직이지 않아요.
+기본 사진은 `listen.jpg` 이고, 일반객 체험 화면도 같은 사진을 써요. 움직임 줄이기를 켠 기기에서는 사진이 움직이지 않아요.
 
 GitHub Pages에는 평가 서버(Node·데이터베이스)가 없어서, 서버가 하던 답을 `src/experience/js/static-api.js` 가 대신 해요.
 
 | 입구 | 공개 사이트에서 | 데이터 |
 | --- | --- | --- |
-| 일반객 | 체험 퀴즈가 처음부터 끝까지 동작해요 (소리 듣기 → 문제 → 정답 확인 → 화면과 함께 보기 → 결과). 정답 확인도 브라우저 안에서 해요 | `src/experience/data/quiz.json` (지금은 문항 0개 → "아직 준비된 퀴즈가 없습니다") |
+| 일반객 | `visitor.html`. 공개 사이트에서는 「시온 이야기」 슬라이드만 들려주고 "퀴즈 체험은 부스에서 할 수 있어요"라고 안내해요. 부스에서는 아래 「일반객 체험(부스)」 흐름 전체가 동작해요 | 비공개 저장소 `See-on26/seeon-booth-data` (공개 저장소에는 없음) |
 | 실험자 | "지금은 실험 접수를 받지 않습니다" 화면이 나와요. 응답을 모을 서버가 없기 때문이에요 | 없음 |
 | 관리자 | 로그인 화면은 그대로이고, 로그인하면 "이 공개 사이트에서는 관리자 기능을 쓸 수 없습니다"가 나와요 | 없음 |
 
 **평가 데이터는 올리지 않았어요.** 데이터베이스(`data/seeon-eval.db`), 평가 영상·음성(`data/uploads/`), 평가 문항은 저장소에 없어요. 실험 안내 그림(`img/guide/`)도 외부 강의 영상 장면과 예시 문항이 담겨 있어 빼 두었어요. 실험자 화면이 공개 사이트에서 열리지 않으므로 지금은 쓰이지 않아요.
 
-### 체험 퀴즈 문항 넣기
+### 일반객 체험(부스)
 
-`src/experience/data/quiz.json` 에 문항을 적고, 소리·영상 파일은 `src/experience/data/media/` 에 넣은 뒤 빌드해요. 파일 경로는 `experience/` 폴더 기준이에요.
+`src/experience/visitor.html` · `js/visitor.js` · `css/visitor.css`. 한 사람에 3분쯤 걸려요.
 
-```json
-{
-  "settings": {
-    "showUnknown": false,
-    "allowReplay": false,
-    "messageCorrect": "정답일 때 결과 화면에 띄울 문구",
-    "messageWrong": "오답일 때 결과 화면에 띄울 문구"
-  },
-  "items": [
-    {
-      "id": 1,
-      "stem": "문제",
-      "options": ["보기 1", "보기 2", "보기 3", "보기 4"],
-      "answer": 0,
-      "explanation": "정답 해설",
-      "audio": { "src": "data/media/q1-seeon.mp3", "start": 0, "end": 42.5 },
-      "video": { "src": "data/media/q1-screen.mp4", "start": 0, "end": 42.5 }
-    }
-  ]
-}
-```
+1. **시온 이야기** — 슬라이드 7장이 자막·음성과 함께 넘어가요(약 1분). 내용은 `src/experience/story/story.json`, 음성은 `story/<id>.mp3`. 문장을 바꾸면 `python tools/story_tts.py` 로 음성을 다시 만들어요(Microsoft Edge 신경망 음성, `pip install edge-tts`).
+2. **효과 들어 보기** — 짧은 영상을 화면과 함께, 시온 해설(파란 자막)을 얹어 재생해요.
+3. **퀴즈 고르기** — 빈자리 찾기 5문제(글·소리로 내고 트리거 낱말은 파란색) 또는 화면 없이 듣고 맞히기 1문제.
+4. **완료** — "STAFF에게 이 화면을 보여 주고 간식 뽑기에 참여하세요". 처음으로는 1초 길게 눌러야 돌아가요.
 
-- `answer` 는 0부터 세요(첫 번째 보기가 0). `showUnknown` 을 켜면 「알 수 없음」 보기가 붙어요.
-- `audio` 는 화면 없이 들려줄 소리(시온 해설이 들어간 것), `video` 는 정답 확인 뒤 화면과 함께 보여 줄 영상이에요. `start`·`end` 는 초 단위이고, `end` 를 `null` 로 두면 끝까지 재생해요.
-- 문항을 잠시 내리려면 `"active": false` 를 넣어요.
-- 저장소가 공개라서 여기 넣은 파일은 **누구나 내려받을 수 있어요.** 저작권이 있는 외부 영상이나 당사자 평가에 쓸 문항은 넣지 마세요.
+영상·해설 음성·문항은 다른 채널의 유튜브 영상이라 **이 저장소에 넣지 않아요.** 비공개 저장소 `See-on26/seeon-booth-data` 의 `visitor/` 를 `docs/experience/data/visitor/` 에 두면(무시 목록에 있어 커밋되지 않아요) 부스 흐름이 켜져요. 부스 노트북에서는 그 저장소의 `부스 실행.bat` 이 복사·서버·키오스크 화면까지 한 번에 해요. 자세한 것은 그 저장소의 README 를 봐요.
 
 ## 내용의 기준
 

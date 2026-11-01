@@ -155,6 +155,16 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   max-width: 1080px; margin: 0 auto; padding: 18px 16px;
 }
+/* 왼쪽 위 「처음으로」 */
+.topbar:has(.topbar-left) { max-width: none; padding-inline: clamp(16px, 2.5vw, 36px); }
+.topbar-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.home-btn {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--line-2); background: var(--surface); color: var(--ink);
+  font: inherit; font-size: 14px; font-weight: 650; text-decoration: none; white-space: nowrap; cursor: pointer;
+}
+.home-btn:hover { border-color: var(--line-3); background: var(--hover); }
+.home-btn[hidden] { display: none; }
 .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); min-height: 32px; }
 .lockup { display: inline-flex; align-items: center; gap: 10px; }
 .seeon-mark, .seeon-word { display: block; flex: none; }

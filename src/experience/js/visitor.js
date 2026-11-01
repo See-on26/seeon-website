@@ -13,6 +13,7 @@ const DATA = 'data/visitor/';
 const STORY = 'story/';
 const IDLE_MS = 3 * 60 * 1000;
 const ANSWER_SEC = 20;
+const DEMO_NEXT_SEC = 8;
 const DETECTION_COUNT = 5;
 const DETECTION_GAPS = 3;
 const UNKNOWN = '알 수 없음';
@@ -78,8 +79,13 @@ const steps = (labels, on) =>
     labels.map((s, i) => h('li', { class: i === on ? 'on' : i < on ? 'done' : '', 'aria-current': i === on ? 'step' : null }, `${i + 1}. ${s}`)));
 const MAIN_STEPS = ['시온 이야기', '효과 들어 보기', '퀴즈'];
 
+// 왼쪽 위 「처음으로」: 체험 중 어느 화면에서든 일반객 첫 화면으로. 첫 화면과 완료 화면(STAFF가 길게 눌러 돌아간다)에서는 숨긴다.
+const homeBtn = $('#v-home');
+homeBtn.addEventListener('click', () => reset());
+
 function view(name, ...children) {
   screen = name;
+  homeBtn.hidden = name === 'start' || name === 'done';
   clear(app, ...children);
   window.scrollTo(0, 0);
   (app.querySelector('h1') || app).focus({ preventScroll: true });
@@ -408,7 +414,21 @@ function renderDemo(r) {
     h('p', { class: 'lead' }, `「${clip.title}」을 설명하는 장면이에요. 화면과 함께, 파란 자막으로 나오는 시온의 목소리를 들어 보세요.`),
     player,
     after);
+  // 다 보면 잠깐 뒤 퀴즈 고르기로 저절로 넘어간다. 다시 보기를 누르면 멈춘다.
+  const countdown = h('p', { class: 'muted v-countdown' });
+  let tick = 0;
+  const stopCountdown = () => {
+    clearInterval(tick);
+    countdown.textContent = '';
+  };
+  const goNext = () => {
+    stopCountdown();
+    if (screen !== 'demo') return;
+    stopMedia();
+    renderChoose(r);
+  };
   const play = async () => {
+    stopCountdown();
     after.hidden = true;
     replay.disabled = true;
     await playSegment({ clipId, start: 0, end: 1e6, withAd: true }, signal);
@@ -417,16 +437,25 @@ function renderDemo(r) {
       h('div', { class: 'notice v-note' },
         h('strong', null, '방금 파란 자막이 시온의 목소리예요. '),
         '발표자는 "보시면 10.9, 9.3"이라고만 했지만, 시온이 어느 쪽이 남성이고 어느 쪽이 여성인지 알려 줬어요.'),
-      h('div', { class: 'btn-row', style: { marginTop: '16px' } }, replay, next));
+      h('div', { class: 'btn-row', style: { marginTop: '16px' } }, replay, next),
+      countdown);
     after.hidden = false;
     r.stage1 = true;
     next.focus();
+    let left = DEMO_NEXT_SEC;
+    countdown.textContent = `${left}초 뒤 퀴즈를 고르는 화면으로 넘어가요.`;
+    tick = setInterval(() => {
+      left -= 1;
+      if (left <= 0) return goNext();
+      countdown.textContent = `${left}초 뒤 퀴즈를 고르는 화면으로 넘어가요.`;
+    }, 1000);
   };
   replay.addEventListener('click', () => play().catch(ignoreAbort));
-  next.addEventListener('click', () => {
-    stopMedia();
-    renderChoose(r);
-  });
+  next.addEventListener('click', goNext);
+  signal.addEventListener('abort', () => {
+    stopCountdown();
+    if (!r.ac.signal.aborted && screen === 'demo') renderChoose(r); // S: 건너뛰기
+  }, { once: true });
   signal.addEventListener('abort', () => {
     if (!r.ac.signal.aborted && screen === 'demo') renderChoose(r); // S: 건너뛰기
   }, { once: true });

@@ -35,7 +35,8 @@ seeon-website/
 ├─ archive/            사이트에 나오지 않는 임시 보관 (예전 체험 페이지: experience-v1/)
 ├─ fonts/              Pretendard Variable 원본과 라이선스
 ├─ build.py            src/ → docs/ 조립, 글꼴 줄이기
-├─ tools/story_tts.py  일반객 체험 「시온 이야기」 음성 만들기
+├─ tools/             story_tts.py(이야기 음성) · make_ad.py(해설 음성) · serve.py(부스용 로컬 서버)
+├─ 부스 실행.bat        인터넷 없이 부스 노트북에서 일반객 체험 띄우기
 └─ requirements.txt
 ```
 
@@ -95,22 +96,35 @@ GitHub Pages에는 평가 서버(Node·데이터베이스)가 없어서, 서버�
 
 | 입구 | 공개 사이트에서 | 데이터 |
 | --- | --- | --- |
-| 일반객 | `visitor.html`. 공개 사이트에서는 「시온 이야기」 슬라이드만 들려주고 "퀴즈 체험은 부스에서 할 수 있어요"라고 안내해요. 부스에서는 아래 「일반객 체험(부스)」 흐름 전체가 동작해요 | 비공개 저장소 `See-on26/seeon-booth-data` (공개 저장소에는 없음) |
+| 일반객 | `visitor.html`. 아래 「일반객 체험」 흐름 전체가 공개 사이트에서도 그대로 동작해요 | `src/experience/data/visitor/` (영상·해설 음성·문항) |
 | 실험자 | "지금은 실험 접수를 받지 않습니다" 화면이 나와요. 응답을 모을 서버가 없기 때문이에요 | 없음 |
 | 관리자 | 로그인 화면은 그대로이고, 로그인하면 "이 공개 사이트에서는 관리자 기능을 쓸 수 없습니다"가 나와요 | 없음 |
 
 **평가 데이터는 올리지 않았어요.** 데이터베이스(`data/seeon-eval.db`), 평가 영상·음성(`data/uploads/`), 평가 문항은 저장소에 없어요. 실험 안내 그림(`img/guide/`)도 외부 강의 영상 장면과 예시 문항이 담겨 있어 빼 두었어요. 실험자 화면이 공개 사이트에서 열리지 않으므로 지금은 쓰이지 않아요.
 
-### 일반객 체험(부스)
+### 일반객 체험
 
-`src/experience/visitor.html` · `js/visitor.js` · `css/visitor.css`. 한 사람에 3분쯤 걸려요.
+`src/experience/visitor.html` · `js/visitor.js` · `css/visitor.css`. 한 사람에 3분쯤 걸리고, 시작하면 퀴즈 고르기까지 저절로 넘어가요.
 
-1. **시온 이야기** — 슬라이드 7장이 자막·음성과 함께 넘어가요(약 1분). 내용은 `src/experience/story/story.json`, 음성은 `story/<id>.mp3`. 문장을 바꾸면 `python tools/story_tts.py` 로 음성을 다시 만들어요(Microsoft Edge 신경망 음성, `pip install edge-tts`).
-2. **효과 들어 보기** — 짧은 영상을 화면과 함께, 시온 해설(파란 자막)을 얹어 재생해요.
+1. **시온 이야기** — 슬라이드 7장이 자막·음성과 함께 넘어가요(약 1분). 내용은 `src/experience/story/story.json`, 음성은 `story/<id>.mp3`. 문장을 바꾸면 `python tools/story_tts.py` 로 음성을 다시 만들어요.
+2. **효과 들어 보기** — 짧은 영상을 화면과 함께, 시온 해설(파란 자막)을 얹어 재생해요. 끝나면 8초 뒤 퀴즈 고르기로 넘어가요(다시 보기를 누르면 멈춰요).
 3. **퀴즈 고르기** — 빈자리 찾기 5문제(글·소리로 내고 트리거 낱말은 파란색) 또는 화면 없이 듣고 맞히기 1문제.
 4. **완료** — "STAFF에게 이 화면을 보여 주고 간식 뽑기에 참여하세요". 처음으로는 1초 길게 눌러야 돌아가요.
 
-영상·해설 음성·문항은 다른 채널의 유튜브 영상이라 **이 저장소에 넣지 않아요.** 비공개 저장소 `See-on26/seeon-booth-data` 의 `visitor/` 를 `docs/experience/data/visitor/` 에 두면(무시 목록에 있어 커밋되지 않아요) 부스 흐름이 켜져요. 부스 노트북에서는 그 저장소의 `부스 실행.bat` 이 복사·서버·키오스크 화면까지 한 번에 해요. 자세한 것은 그 저장소의 README 를 봐요.
+- 왼쪽 위 **처음으로** 를 누르면 체험 중 어느 화면에서든 일반객 첫 화면으로 돌아가요(첫 화면과 완료 화면에서는 숨어요). 실험자 화면 왼쪽 위의 처음으로는 체험 첫 화면으로 가요.
+- STAFF 키: `Esc` 2초 = 처음으로, `S` = 지금 단계 건너뛰기(점검용, 간식 안내를 띄우지 않아요). 3분 동안 입력이 없으면 첫 화면으로 돌아가요(완료 화면은 그대로).
+
+**데이터** — `src/experience/data/visitor/`
+
+| 파일 | 내용 |
+| --- | --- |
+| `visitor.json` | 영상별 해설(시각·문장·방식 pause/duck), 탐지 문장 12개, 이해도 문항 9개 |
+| `clips/<id>.mp4` | 영상 7개: salt(효과 들어 보기), ramen·aircon·dino·cards·pancake·jelly(퀴즈) — 사람 제거·공유화면 편집본 |
+| `ad/<id>.mp3` | 해설 음성 12개. 해설은 시온 실제 출력이 아니라 시연용으로 사람이 쓴 문장이에요 |
+
+해설 문장이나 목소리(`voice.ad`)를 바꾸면 `python tools/make_ad.py` 로 음성을 다시 만들어요(`pip install edge-tts`, 바뀐 것만 만들어요. 전부 다시는 `--all`).
+
+**부스에서 띄우기** — 인터넷이 되면 공개 주소의 `experience/visitor.html` 을 Chrome 키오스크로 열면 돼요. 인터넷 없이 띄우려면 이 저장소를 받아 `부스 실행.bat` 을 더블클릭해요. `tools/serve.py`(영상 중간으로 건너뛸 수 있게 Range 요청을 받는 로컬 서버)로 `docs/` 를 열고 Chrome 키오스크 화면을 띄워요. Python 3 과 Chrome 이 있어야 해요.
 
 ## 내용의 기준
 

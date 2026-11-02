@@ -1,13 +1,14 @@
 """체험 1단계 「시온 STORY」 영상(src/experience/story/story.mp4)을 만든다.
 
 본선 제출 영상 인트로의 꼴을 따른다. 어둡게 누른 실사 위에 가운데 손글씨 인용(인트로에서 오려 냄), 흰 자막과 파란 강조,
-오른쪽 위 작은 로고, 끝은 흰 화면에 로고. 이야기는 문제(n1~n5) → 시온(n6~n9)이다.
+오른쪽 위 작은 로고, 끝은 흰 화면에 로고. 이야기는 문제(n1~n5) → 시온(n6~n8)이다.
 
 장면 길이는 내레이션(tools/story/voice/<id>.mp3) 길이에 맞춰 정해진다. ElevenLabs 로 만든 파일로 바꾼 뒤 다시 돌리면
 그 길이대로 다시 짜인다. 대본과 자막은 tools/story/script.json 에 있다.
 
     python tools/story_tts.py                       # 없는 내레이션을 임시 음성으로 채운다
     python tools/story_video.py                     # 영상을 만든다
+    python tools/story_video.py --voice 받은파일.mp3  # 대본 전체를 한 파일로 읽은 것을 줄마다 나눠 넣고 만든다
     python tools/story_video.py --still 3 9.5 30    # 그 순간들만 PNG 로(확인용, --out 폴더)
 
 필요한 것: numpy, Pillow, ffmpeg(libx264, imageio-ffmpeg 가 있으면 그 ffmpeg 를 쓴다), Pretendard 글꼴
@@ -32,12 +33,11 @@ OUT = ROOT / 'src' / 'experience' / 'story' / 'story.mp4'
 W, H, FPS, SR = 1280, 720, 30, 44100
 WHITE = (255, 255, 255)
 BLUE = (98, 168, 255)     # 강조색(지금 로고의 파랑을 어두운 바탕에서 읽히게 밝힌 것)
-GRAY = (154, 163, 181)
 INK = (27, 35, 48)        # 끝 화면 글자
 PAPER = (254, 254, 252)   # 끝 화면 바탕(본선 인트로와 같은 흰색)
 
 # 줄이 끝나고 다음 줄까지 쉬는 시간(초). 장면이 바뀌는 곳은 길게 둔다.
-GAP = {'n1': 0.35, 'n2': 0.6, 'n3': 0.85, 'n4': 0.5, 'n5': 1.1, 'n6': 0.6, 'n7': 0.25, 'n8': 0.35, 'a1': 0.8, 'n9': 2.0}
+GAP = {'n1': 0.35, 'n2': 0.6, 'n3': 0.85, 'n4': 0.5, 'n5': 1.1, 'n6': 0.6, 'n7': 0.9, 'n8': 2.0}
 LEAD = 0.9  # 첫 줄 앞
 
 
@@ -342,9 +342,40 @@ def fit_music(y, need, a, b, xf=0.5):
     return out[:n]
 
 
-def envelope(a, hop=441):
-    r = frame_rms(a, hop)
-    return np.clip(r / (r.max() + 1e-9), 0, 1)
+def split_voice(path, ids):
+    """한 파일에 이어 읽은 내레이션을 가장 긴 쉼 len(ids)-1 곳에서 잘라 voice/<id>.mp3 로 저장한다.
+    ElevenLabs 에서 대본 전체를 한 번에 만들었을 때 쓴다(줄 사이를 1초쯤 쉬어 읽게 한다)."""
+    a = load_audio(path)
+    r = frame_rms(a)
+    quiet = r < r.max() * 10 ** (-38 / 20)
+    gaps, i = [], 0
+    while i < len(quiet):
+        j = i
+        while j < len(quiet) and quiet[j]:
+            j += 1
+        if j > i and i > 0 and j < len(quiet):
+            gaps.append((j - i, i, j))
+        i = max(j, i + 1)
+    gaps.sort(reverse=True)
+    need = len(ids) - 1
+    if len(gaps) < need:
+        sys.exit(f'쉼이 {len(gaps)}곳뿐이라 {len(ids)}줄로 나눌 수 없어요. 줄 사이를 쉬어 읽은 파일인지 봐 주세요.')
+    cuts = sorted(gaps[:need], key=lambda g: g[1])
+    bounds = [0] + [(g[1] + g[2]) // 2 * 441 for g in cuts] + [len(a)]
+    (HERE / 'voice').mkdir(exist_ok=True)
+    for k, s, e in zip(ids, bounds, bounds[1:]):
+        subprocess.run([FF, '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '1', '-i', '-', '-c:a', 'libmp3lame',
+                        '-b:a', '160k', str(HERE / 'voice' / f'{k}.mp3')], input=a[s:e].tobytes(), check=True)
+        print(f'  {k}  {len(trim(a[s:e])) / SR:5.2f}초')
+    shortest = gaps[need - 1][0] / 100
+    longest_left = gaps[need][0] / 100 if len(gaps) > need else 0
+    print(f'  자른 쉼 가운데 가장 짧은 것 {shortest:.2f}초, 남긴 쉼 가운데 가장 긴 것 {longest_left:.2f}초')
+    if longest_left > shortest * 0.75:
+        print('  ※ 줄 사이 쉼과 문장 안 쉼의 길이가 비슷해요. 줄이 제대로 나뉘었는지 --still 이나 영상으로 확인해 주세요.')
+    made = HERE / 'voice' / '_made.json'
+    if made.exists():  # 임시 음성 도구가 덮어쓰지 않게 표시를 지운다
+        m = json.loads(made.read_text(encoding='utf-8'))
+        made.write_text(json.dumps({k: v for k, v in m.items() if k not in ids}, ensure_ascii=False, indent=1), encoding='utf-8')
 
 
 # ── 줄거리 ────────────────────────────────────────────────────────
@@ -372,7 +403,7 @@ def build():
         """줄 k 에서 word 를 말하는 때를 글자 수로 어림한다."""
         say = lines[k]['say']
         i = say.index(word)
-        count = lambda s: len(re.sub(r'[\s“”‘’\'"]', '', s)) + 2.5 * s.count(',') + 2 * s.count('%')  # noqa: E731
+        count = lambda s: len(re.sub(r'[\s“”‘’\'"]', '', s)) + 2.5 * s.count(',')  # noqa: E731
         return S(k) + dur(k) * count(say[:i]) / count(say)
 
     # 바탕(뒤에 적은 것이 위에 덮인다)
@@ -381,8 +412,8 @@ def build():
         Footage('presenter', S('n2') - 0.45, S('n3') + 0.45, fade_in=0.6, fade_out=1.0, zoom=(1.04, 1.12), pan=(0.4, -0.2)),
         Footage('braille', S('n4') - 0.4, S('n5') + 0.4, fade_in=0.8, zoom=(1.0, 1.1), pan=(-0.3, 0)),
         Footage('blind', S('n5') - 0.45, E('n5') + 0.95, fade_in=0.6, fade_out=1.0, zoom=(1.0, 1.08)),
-        Footage('headphones', E('n6') + 0.15, E('a1') + 1.3, fade_in=0.9, zoom=(1.0, 1.05), dim=0.3, sat=0.6, blur=6),
-        Solid(PAPER, E('a1') + 0.25, total + 1, fade_in=0.9),
+        Footage('headphones', E('n6') + 0.15, E('n7') + 1.3, fade_in=0.9, zoom=(1.0, 1.08), pan=(0.3, 0)),
+        Solid(PAPER, E('n7') + 0.25, total + 1, fade_in=0.9),
     ]
 
     # 얹는 것들
@@ -392,7 +423,7 @@ def build():
     over = []
 
     def watermark(c, t):
-        a = max(ramp(t, 0.6, S('n6') - 0.5, 0.6, 0.6), ramp(t, E('n6') + 0.5, E('a1') + 0.4, 0.6, 0.5))
+        a = max(ramp(t, 0.6, S('n6') - 0.5, 0.6, 0.6), ramp(t, E('n6') + 0.5, E('n7') + 0.4, 0.6, 0.5))
         put(c, mark, W - mark.w - 26, 20, a)
     over.append(watermark)
 
@@ -413,11 +444,11 @@ def build():
         put(c, q_blue, qx, qy, a * ramp(t, t_blue - 0.05, q_t1, 0.3, 0.5), mask)
     over.append(quote)
 
-    # 아래 자막: 내레이션을 그대로(가운데 글이 따로 있는 n2·n6·n9 는 빼고)
+    # 아래 자막: 내레이션을 그대로(가운데 글이 따로 있는 n2·n6·n8 은 빼고)
     caps = []
     for i, k in enumerate(order):
         cap = lines[k].get('cap')
-        if not cap or k in ('n6', 'n9'):
+        if not cap or k in ('n6', 'n8'):
             continue
         nxt = S(order[i + 1]) - 0.08 if i + 1 < len(order) else total
         im, _ = text_image(cap, 30)
@@ -457,127 +488,13 @@ def build():
         put(c, n6_text, (W - n6_text.w) / 2, 336 + rise, ramp(t, S('n6') + 0.1, E('n6') + 0.45, 0.5, 0.45))
     over.append(pivot)
 
-    # n7·n8·a1: 공유 화면(막대그래프) — 발표자 말에서 빈자리를 찾고, 말이 멈추면 시온 AD 가 채운다
-    CX, CY, CW, CH = 340, 82, 600, 290
-    card_cache = {}
-    t_glow = S('a1') + 0.05
-    t_plus = said_at('a1', '30%')
-
-    def card_image(h, plus):
-        key = (round(h, 2), round(plus, 2))
-        if key in card_cache:
-            return card_cache[key]
-        s = 2
-        im = Image.new('RGBA', (CW * s, CH * s), (0, 0, 0, 0))
-        d = ImageDraw.Draw(im)
-        d.rounded_rectangle((0, 0, CW * s - 1, CH * s - 1), radius=16 * s, fill=(14, 18, 26, 228), outline=(255, 255, 255, 40), width=s)
-        d.text((28 * s, 40 * s), '연도별 매출', font=font('SemiBold', 22 * s), fill=WHITE + (255,), anchor='ls')
-        tag = '공유 화면'
-        tf = font('Medium', 14 * s)
-        tw = tf.getlength(tag)
-        d.rounded_rectangle((CW * s - 28 * s - tw - 24 * s, 20 * s, CW * s - 28 * s, 46 * s), radius=13 * s, outline=GRAY + (160,), width=s)
-        d.text((CW * s - 28 * s - tw - 12 * s, 38 * s), tag, font=tf, fill=GRAY + (255,), anchor='ls')
-        base = CH - 52
-        d.line((60 * s, base * s, (CW - 60) * s, base * s), fill=(255, 255, 255, 70), width=s)
-        bars = [(2023, 85), (2024, 108), (2025, 140)]  # 2025 는 2024 보다 30% 높다
-        bw = 92
-        fg = Image.new('RGBA', im.size, (0, 0, 0, 0))
-        fd = ImageDraw.Draw(fg)
-        glow = Image.new('RGBA', im.size, (0, 0, 0, 0))
-        gd = ImageDraw.Draw(glow)
-        for i, (year, v) in enumerate(bars):
-            x = 150 + i * 150
-            top = base - v
-            col = tuple(int(g + (b - g) * (h if i == 2 else 0)) for g, b in zip((125, 135, 153), BLUE))
-            if i == 2 and h > 0:
-                gd.rounded_rectangle(((x - bw / 2 - 6) * s, (top - 6) * s, (x + bw / 2 + 6) * s, base * s), radius=8 * s, fill=BLUE + (int(150 * h),))
-            fd.rounded_rectangle(((x - bw / 2) * s, top * s, (x + bw / 2) * s, base * s), radius=6 * s, fill=col + (255,))
-            d.text((x * s, (base + 26) * s), str(year), font=font('Medium', 16 * s), fill=GRAY + (255,), anchor='ms')
-            if i == 2 and plus > 0:
-                fd.text((x * s, (top - 14) * s), '+30%', font=font('Bold', 22 * s), fill=BLUE + (int(255 * plus),), anchor='ms')
-        im.alpha_composite(glow.filter(ImageFilter.GaussianBlur(10 * s)))  # 판 → 빛 → 막대
-        im.alpha_composite(fg)
-        sp = Sprite(im.resize((CW, CH), Image.LANCZOS))
-        card_cache[key] = sp
-        return sp
-
-    def card(c, t):
-        a = ramp(t, S('n7') - 0.35, E('a1') + 0.45, 0.5, 0.45)
-        if a <= 0:
-            return
-        h = ease((t - t_glow) / 0.5)
-        plus = ease((t - t_plus) / 0.3)
-        rise = 10 * (1 - ease((t - S('n7') + 0.35) / 0.5))
-        put(c, card_image(h, plus), CX, CY + rise, a)
-    over.append(card)
-
-    speech_im, speech_marks = text_image('“{여기}를 보시면, {이만큼} 늘었죠.”', 34, blue=WHITE)
-    speech = Sprite(speech_im)
-    who = Sprite(text_image('발표자', 18, color=GRAY, shadow=False)[0])
-    hl = []
-    for (word, x0, x1, uy), at in zip(speech_marks, (said_at('n7', '순간'), said_at('n7', '찾고'))):
-        wim, _ = text_image('{' + word + '}', 34)
-        hl.append((Sprite(wim), x0, x1, uy, at))
-    sx, sy = (W - speech.w) / 2, 418
-
-    def speech_line(c, t):
-        a = ramp(t, S('n7') + 0.05, E('n8') + 0.25, 0.4, 0.3)
-        if a <= 0:
-            return
-        put(c, who, (W - who.w) / 2, sy - 30, a)
-        put(c, speech, sx, sy, a)
-        for wsp, x0, x1, uy, at in hl:
-            p = ease((t - at) / 0.35)
-            if p <= 0:
-                continue
-            # 파란 글자는 따로 그린 그림이라 자리를 맞춘다: 같은 글자·크기·여백이므로 x0 에서 여백만큼 당긴다
-            put(c, wsp, sx + x0 - 12, sy, a * p)
-            line_w = int((x1 - x0) * p)
-            if line_w > 0:
-                c[int(sy + uy + 4):int(sy + uy + 7), int(sx + x0):int(sx + x0 + line_w)] = (
-                    c[int(sy + uy + 4):int(sy + uy + 7), int(sx + x0):int(sx + x0 + line_w)] * (1 - a) + np.array(BLUE, np.float32) * a)
-    over.append(speech_line)
-
-    ad_env = envelope(voice['a1'])
-    ad_text = Sprite(text_image(lines['a1']['say'], 30, shadow=False)[0])
-    ad_label = Sprite(text_image('{시온 AD}', 20, shadow=False)[0])
-    BARS, BW_, BG_ = 14, 4, 5
-    wave_w = BARS * (BW_ + BG_)
-    box_w = 26 + wave_w + 14 + ad_label.w - 24 + 14 + ad_text.w - 24 + 26
-    box_h = 76
-    bx, by = (W - box_w) / 2, 412
-    box = Image.new('RGBA', (int(box_w), box_h), (0, 0, 0, 0))
-    ImageDraw.Draw(box).rounded_rectangle((0, 0, int(box_w) - 1, box_h - 1), radius=14, fill=(10, 14, 22, 232), outline=BLUE + (120,), width=2)
-    box = Sprite(box)
-
-    def ad(c, t):
-        a = ramp(t, E('n8') + 0.15, E('a1') + 0.45, 0.35, 0.45)
-        if a <= 0:
-            return
-        put(c, box, bx, by, a)
-        x = bx + 26
-        for i in range(BARS):
-            k = int((t - S('a1') - (BARS - 1 - i) * 0.035) * 100)
-            e = ad_env[k] if 0 <= k < len(ad_env) else 0.0
-            bh = 4 + 34 * e
-            y0 = by + box_h / 2 - bh / 2
-            xs = int(x + i * (BW_ + BG_))
-            sub = c[int(y0):int(y0 + bh), xs:xs + BW_]
-            sub *= 1 - a
-            sub += np.array(BLUE, np.float32) * a
-        x += wave_w + 14
-        put(c, ad_label, x - 12, by + (box_h - ad_label.h) / 2, a)
-        x += ad_label.w - 24 + 14
-        put(c, ad_text, x - 12, by + (box_h - ad_text.h) / 2, a)
-    over.append(ad)
-
-    # n9: 끝 화면
-    end_text = Sprite(text_image(lines['n9']['cap'], 24, color=INK, shadow=False)[0])
+    # n8: 끝 화면
+    end_text = Sprite(text_image(lines['n8']['cap'], 24, color=INK, shadow=False)[0])
 
     def endcard(c, t):
-        a = ramp(t, E('a1') + 0.75, total + 1, 0.7, 0)
+        a = ramp(t, E('n7') + 0.75, total + 1, 0.7, 0)
         put(c, logo_end, (W - logo_end.w) / 2, 280, a)
-        put(c, end_text, (W - end_text.w) / 2, 384, ramp(t, S('n9') - 0.1, total + 1, 0.6, 0))
+        put(c, end_text, (W - end_text.w) / 2, 384, ramp(t, S('n8') - 0.1, total + 1, 0.6, 0))
     over.append(endcard)
 
     # 소리
@@ -633,7 +550,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--still', type=float, nargs='*', help='이 시각(초)들의 장면만 PNG 로 만든다')
     ap.add_argument('--out', default=str(OUT), help='영상 파일(또는 --still 일 때 PNG 를 둘 폴더)')
+    ap.add_argument('--voice', help='대본 전체를 이어 읽은 내레이션 한 파일. 줄마다 나눠 voice/ 에 넣고 영상을 만든다')
     args = ap.parse_args()
+    if args.voice:
+        script = json.loads((HERE / 'script.json').read_text(encoding='utf-8'))
+        split_voice(args.voice, [line['id'] for line in script['lines']])
     bg, over, mix, total, T = build()
     print('길이 %.2f초' % total)
     for k, (s, e) in T.items():

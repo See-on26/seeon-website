@@ -1,7 +1,6 @@
 """체험 「시온 STORY」 내레이션을 ElevenLabs 로 한꺼번에 만든다.
 
 tools/story/script.json 의 lines[].say 를 ElevenLabs 음성으로 읽어 tools/story/voice/<id>.mp3 로 저장한다.
-kind 가 "ad" 인 줄(시온 AD 소리)은 건너뛴다. 그 소리는 체험 해설과 같은 음성이어야 해서 tools/story_tts.py 가 만든다.
 API 키와 목소리 ID 는 환경 변수로 준다(저장소에 넣지 않는다).
 
     set ELEVENLABS_API_KEY=...            (PowerShell: $env:ELEVENLABS_API_KEY="...")
@@ -46,7 +45,7 @@ def main():
     only = set(sys.argv[1:])
     made = json.loads(MADE.read_text(encoding='utf-8')) if MADE.exists() else {}
     for line in data['lines']:
-        if line.get('kind') == 'ad' or (only and line['id'] not in only):
+        if only and line['id'] not in only:
             continue
         speak(line['say'], voice_id, key, VOICE / f"{line['id']}.mp3")
         made.pop(line['id'], None)  # 임시 음성 도구(story_tts.py)가 덮어쓰지 않게 표시를 지운다

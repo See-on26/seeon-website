@@ -1,5 +1,17 @@
 /* 일반객 체험: 어두운 사진 배경 위의 유리 카드, 가운데 큰 재생기 */
-.visitor-page .page { max-width: 1120px; padding-top: 4px; }
+.visitor-page .page { width: 100%; max-width: 1120px; padding-top: 4px; padding-bottom: 24px; }
+/* 부스 노트북(15.6·17인치) 전체 화면, 곧 CSS 픽셀 1280×720 ~ 1536×864 에서 아래로 내리지 않고 한 화면에 다 보이게.
+   STORY·들어보기는 화면 높이를 채우는 세로 줄이고, 영상은 남은 칸(v-stage)에 16:9 로 맞춘다. */
+.visitor-page { display: flex; flex-direction: column; }
+.visitor-page .topbar { width: 100%; }
+.visitor-page .page[data-screen='story'], .visitor-page .page[data-screen='demo'] { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+.v-stage { flex: 1 1 0; min-height: 220px; container-type: size; display: grid; justify-items: center; align-content: start; }
+.v-stage > .v-film-wrap, .v-stage > .v-player { width: min(100cqw, (100cqh - 10px) * 16 / 9); }
+.v-after.waiting { visibility: hidden; }
+@media (max-height: 780px) {
+  .visitor-page .topbar { padding-block: 12px; }
+  .visitor-page .steps { margin-bottom: 12px; }
+}
 .visitor-page .page[data-screen='detection'], .visitor-page .page[data-screen='comprehension'] { max-width: min(1680px, 100%); }
 .visitor-page .page[data-screen='story'], .visitor-page .page[data-screen='demo'] { max-width: min(1400px, 100%); }
 .visitor-page .page-title { font-size: clamp(26px, 3.4vw, 38px); margin-bottom: 10px; }
@@ -83,7 +95,7 @@
 @media (max-width: 1000px) { .v-split { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- 시온 STORY: 실사 바탕 + 내레이션 + CC 자막 ---------- */
-.v-film-wrap { display: grid; gap: 6px; width: min(100%, calc((100vh - 200px) * 16 / 9)); margin-inline: auto; }
+.v-film-wrap { display: grid; gap: 6px; }
 .v-film { position: relative; aspect-ratio: 16 / 9; width: 100%; overflow: hidden; background: #000; border-radius: 10px; }
 .v-intro { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
 .v-skip {
@@ -93,10 +105,14 @@
 }
 .v-skip svg { width: 20px; height: 20px; fill: currentColor; }
 .v-skip:hover, .v-skip:focus-visible { background: rgb(0 0 0 / 0.88); border-color: #fff; }
-.v-story-after { margin-top: 18px; }
+.v-after-slot { flex: none; min-height: 56px; margin-top: 14px; }
 
 /* ---------- SEEON 들어보기 ---------- */
-.visitor-page .v-player + .v-after { margin-top: 18px; }
+.visitor-page .page[data-screen='demo'] .lead { margin-bottom: 12px; }
+.v-demo-after { flex: none; display: flex; align-items: center; gap: 16px; margin-top: 14px; }
+.v-demo-after .v-note { flex: 1 1 auto; min-width: 0; }
+.v-demo-after .btn-row { flex: none; flex-wrap: nowrap; }
+@media (max-width: 760px) { .v-demo-after { flex-direction: column; align-items: stretch; } }
 .v-note { font-size: 17px; line-height: 1.6; }
 
 /* ---------- 퀴즈 고르기 ---------- */
@@ -110,7 +126,10 @@
   transition: border-color 0.2s, transform 0.2s;
 }
 .v-choice:hover, .v-choice:focus-visible { border-color: rgb(90 169 255 / 0.6); transform: translateY(-3px); }
-.v-choice-k { font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em; color: #6aaeff; }
+.v-choice-k {
+  justify-self: start; padding: 3px 12px; border-radius: 999px; font-size: 14px; font-weight: 700;
+  color: #9cc8ff; background: rgb(0 103 242 / 0.2); border: 1px solid rgb(90 169 255 / 0.4);
+}
 .v-choice strong { font-size: clamp(24px, 2.6vw, 32px); font-weight: 780; }
 .v-choice span { color: var(--ink-2); font-size: 16px; line-height: 1.6; }
 
@@ -120,6 +139,8 @@
 .v-quiz-title { font-size: clamp(22px, 2.4vw, 30px) !important; margin: 0 !important; }
 
 /* ---------- 탐지 ---------- */
+.v-context { margin: 0 0 12px; padding: 2px 0 2px 12px; border-left: 3px solid rgb(255 255 255 / 0.22); color: var(--ink-2); font-size: 15px; line-height: 1.55; }
+.v-context b { display: block; margin-bottom: 2px; color: var(--muted); font-size: 12px; font-weight: 700; }
 .v-quote { margin: 0 0 10px; font-size: clamp(20px, 2.2vw, 26px); font-weight: 700; line-height: 1.55; }
 .v-legend { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
 .v-legend mark.trig { text-decoration: none; }
@@ -145,6 +166,18 @@
 .v-score li.ok b { color: #4ade80; }
 .v-score li.bad b { color: #f87171; }
 .v-score em { font-style: normal; color: var(--muted); font-size: 14px; white-space: nowrap; }
+
+/* ---------- 결과 화면(한 화면에 들어가게 촘촘히) ---------- */
+.v-det-result .lead, .v-comp-result .lead { margin: 14px 0 0; }
+.v-det-result .btn-row, .v-comp-result .btn-row { margin-top: 16px; }
+.v-comp-result .verdict { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 0; }
+.v-comp-result .verdict-mark { width: 60px; height: 60px; margin: 0; font-size: 30px; }
+.v-comp-result .verdict .page-title { margin: 0; }
+.v-comp-result .q-stem { margin: 16px 0 12px; font-size: 19px; }
+.v-comp-result .choice-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.v-comp-result .option { min-height: 52px; padding: 10px 14px; }
+.v-comp-result .notice { margin-top: 14px; }
+@media (max-width: 760px) { .v-comp-result .choice-list { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- 이해도 ---------- */
 .v-timer { height: 6px; margin-top: 16px; border-radius: 3px; background: rgb(255 255 255 / 0.12); overflow: hidden; }

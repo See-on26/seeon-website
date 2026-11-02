@@ -1,5 +1,5 @@
-import { api, clear, h, toast } from '../common.js?v=c0ce606d';
-import { adminApi, condChip, field, mediaSelect, section, table, viewHead } from './ui.js?v=c0ce606d';
+import { api, clear, h, toast } from '../common.js?v=4a63c8d2';
+import { adminApi, condChip, field, mediaSelect, section, table, viewHead } from './ui.js?v=4a63c8d2';
 
 export async function render(root) {
   const [{ settings: s, conditions, participantCount }, { contents }, { media }] = await Promise.all([

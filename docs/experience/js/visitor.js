@@ -1,7 +1,7 @@
-import { $, clear, h } from './common.js?v=c0ce606d';
-import { startScene, startWaves, storage } from './fx.js?v=c0ce606d';
-import { markSvg, mountLogos } from './logo.js?v=c0ce606d';
-import { requestFullscreen } from './player.js?v=c0ce606d';
+import { $, clear, h } from './common.js?v=4a63c8d2';
+import { startScene, startWaves, storage } from './fx.js?v=4a63c8d2';
+import { markSvg, mountLogos } from './logo.js?v=4a63c8d2';
+import { requestFullscreen } from './player.js?v=4a63c8d2';
 
 // 일반객 체험 (부스)
 // 시작 → 1단계(시온 STORY 영상 → SEEON 들어보기) → 2단계(퀴즈: 말에 화면 정보가 담겼는지 맞히기 5문제 또는 화면 없이 듣고 맞히기 1문제) → 완료(STAFF 안내)
@@ -328,12 +328,13 @@ async function playStory(r) {
   const skip = h('button', { type: 'button', class: 'v-skip', hidden: true },
     '건너뛰기', h('span', { 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24"><path d="M5 5v14l10-7z"/><path d="M17 5h2v14h-2z"/></svg>' }));
   const fill = h('div');
-  const after = h('div', { class: 'v-after v-story-after', hidden: true });
+  const after = h('div', { class: 'v-after', hidden: true });
   view('story',
     r.booth ? steps(MAIN_STEPS, 0) : null,
     h('h1', { class: 'v-sr', tabindex: '-1' }, '시온 STORY'),
-    h('div', { class: 'v-film-wrap' }, h('div', { class: 'v-film' }, film, skip), h('div', { class: 'v-progress', 'aria-hidden': 'true' }, fill)));
-  app.append(after);
+    h('div', { class: 'v-stage' },
+      h('div', { class: 'v-film-wrap' }, h('div', { class: 'v-film' }, film, skip), h('div', { class: 'v-progress', 'aria-hidden': 'true' }, fill))),
+    h('div', { class: 'v-after-slot' }, after)); // 끝난 뒤 나오는 버튼 자리를 미리 비워 둬 영상 크기가 그대로다
   const goDemo = () => {
     if (screen !== 'story' || run !== r) return;
     film.pause();
@@ -390,28 +391,27 @@ function renderDemo(r) {
   const signal = stepSignal(r);
   const demo = typeof data.demo === 'string' ? { clip: data.demo, start: 0, end: 1e6, rate: 1 } : data.demo;
   const clip = data.clips[demo.clip];
-  const after = h('div', { class: 'v-after', hidden: true });
   const replay = h('button', { type: 'button', class: 'btn btn-lg' }, '다시 보기');
   const next = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, '다음으로 →');
+  // 다 듣고 나면 보이는 안내와 버튼. 자리는 처음부터 잡아 둬 영상 크기가 바뀌지 않는다
+  const after = h('div', { class: 'v-after v-demo-after waiting' },
+    h('div', { class: 'notice v-note' },
+      h('strong', null, `방금 ${AD_LABEL}가 시온의 목소리예요. `),
+      '발표자는 "보시면 10.9, 9.3"이라고만 했지만, 시온이 어느 쪽이 남성이고 어느 쪽이 여성인지 알려 줬어요.'),
+    h('div', { class: 'btn-row' }, replay, next));
   setBlind(false);
   bar.style.width = '0';
   view('demo',
-    steps(MAIN_STEPS, 1),
-    title('SEEON 들어보기'),
+    h('div', { class: 'q-head' }, h('h1', { class: 'page-title v-quiz-title', tabindex: '-1' }, 'SEEON 들어보기'), steps(MAIN_STEPS, 1)),
     h('p', { class: 'lead' }, `「${clip.title}」을 설명하는 장면이에요. 검은 자막은 발표자의 말, 파란 자막 ${AD_LABEL}는 시온의 해설이에요.`),
-    player,
+    h('div', { class: 'v-stage' }, player),
     after);
   const play = async () => {
-    after.hidden = true;
+    after.classList.add('waiting');
     replay.disabled = true;
     await playSegment({ clipId: demo.clip, start: demo.start, end: demo.end, withAd: true, subs: true, rate: demo.rate || 1 }, signal);
     replay.disabled = false;
-    clear(after,
-      h('div', { class: 'notice v-note' },
-        h('strong', null, `방금 ${AD_LABEL}가 시온의 목소리예요. `),
-        '발표자는 "보시면 10.9, 9.3"이라고만 했지만, 시온이 어느 쪽이 남성이고 어느 쪽이 여성인지 알려 줬어요.'),
-      h('div', { class: 'btn-row', style: { marginTop: '16px' } }, replay, next));
-    after.hidden = false;
+    after.classList.remove('waiting');
     r.stage1 = true;
     next.focus();
   };
@@ -432,7 +432,7 @@ function renderChoose(r) {
   r.skip = null;
   const card = (key, k, name, desc) => {
     const el = h('button', { type: 'button', class: 'v-choice' },
-      h('span', { class: 'v-choice-k', lang: 'en' }, k),
+      h('span', { class: 'v-choice-k' }, k),
       h('strong', null, name),
       h('span', null, desc));
     el.addEventListener('click', () => (key === 'det' ? runDetection(r) : runComprehension(r)).catch(ignoreAbort));
@@ -443,12 +443,13 @@ function renderChoose(r) {
     title('어떤 퀴즈를 풀어 볼까요?'),
     h('p', { class: 'v-time' }, h('span', { 'aria-hidden': 'true' }, '⏱'), ' 예상 시간 약 1분 30초'),
     h('div', { class: 'v-choices' },
-      card('det', 'DETECTION', '말에 화면 정보가 담겼는지 맞히기', '발표자의 말 한 마디를 듣고, 화면을 봐야 알 수 있는 말인지 맞혀 보세요.'),
-      card('comp', 'LISTENING', '화면 없이 듣고 맞히기', '화면을 가린 채 시온 해설만 듣고, 화면 속 정답을 맞혀 보세요.')));
+      card('det', '유형 1', '말에 화면 정보가 담겼는지 맞히기', '발표자의 말 한 마디를 듣고, 화면을 봐야 알 수 있는 말인지 맞혀 보세요.'),
+      card('comp', '유형 2', '화면 없이 듣고 맞히기', '화면을 가린 채 시온 해설만 듣고, 화면 속 정답을 맞혀 보세요.')));
 }
 
 // ---------- 2단계 ① 탐지: 말에 화면 정보가 담겼는지 맞히기 ----------
 // 영상마다 한 문장씩 5문제. 빈자리 3개, 아닌 것 2개를 섞는다.
+// 앞 맥락이 있어야 답이 정해지는 문항(item.context)은 앞에서 한 말부터 들려주고, 카드에도 그 말을 적어 둔다.
 function pickDetection() {
   const byClip = new Map();
   for (const item of data.detection) {
@@ -499,13 +500,14 @@ async function detectionItem(item, i, total, signal) {
     h('div', { class: 'v-split' },
       player,
       h('div', { class: 'card v-quote-card' },
+        item.context ? h('p', { class: 'v-context' }, h('b', null, '앞에서 한 말'), item.context.text) : null,
         h('p', { class: 'v-quote' }, '“', ...highlight(item.text, item.triggers), '”'),
         h('p', { class: 'v-legend' }, h('mark', { class: 'trig' }, '파란 글씨'), '는 시온이 "화면을 가리키는 말"로 보는 표현이에요.'),
         ask, out)));
 
   const listen = async () => {
     [yes, no, again].forEach((b) => (b.disabled = true));
-    await playSegment({ clipId: item.clip, start: item.start, end: item.end, withAd: false, subs: true }, signal);
+    await playSegment({ clipId: item.clip, start: item.context?.start ?? item.start, end: item.end, withAd: false, subs: true }, signal);
     [yes, no, again].forEach((b) => (b.disabled = false));
   };
   again.addEventListener('click', () => listen().catch(ignoreAbort));
@@ -567,15 +569,15 @@ function renderDetectionResult(r, items, results) {
   done.addEventListener('click', () => renderDone(r));
   view('detection-result',
     steps(MAIN_STEPS, 2),
-    h('div', { class: 'card' },
+    h('div', { class: 'card v-det-result' },
       title(`${results.length}문제 중 ${score}개를 맞혔어요`),
       h('ol', { class: 'v-score' }, items.map((it, k) =>
         h('li', { class: results[k].correct ? 'ok' : 'bad' },
           h('b', { 'aria-label': results[k].correct ? '맞힘' : '틀림' }, results[k].correct ? 'O' : 'X'),
           h('span', null, '“', ...highlight(it.text, it.triggers), '”'),
           h('em', null, it.gap ? '빈자리' : '빈자리 아님')))),
-      h('p', { class: 'lead', style: { marginTop: '16px' } }, '시온도 발표자의 말을 들으며 방금처럼 판단해요. 한국어·영어 문장 3,600개로 시험했을 때, 화면을 봐야 알 수 있는 말을 놓치지 않고 정확하게 골라낸 정도가 100점 만점에 96.1점(F1 점수)이었어요.'),
-      h('div', { class: 'btn-row', style: { marginTop: '18px' } }, done)));
+      h('p', { class: 'lead' }, '시온도 발표자의 말을 들으며 방금처럼 판단해요. 한국어·영어 문장 3,600개로 시험했을 때, 화면을 봐야 알 수 있는 말을 놓치지 않고 정확하게 골라낸 정도가 100점 만점에 96.1점(F1 점수)이었어요.'),
+      h('div', { class: 'btn-row' }, done)));
   done.focus();
 }
 
@@ -674,20 +676,20 @@ function renderComprehensionResult(r, item, options, selected) {
   done.addEventListener('click', () => renderDone(r));
   view('comprehension-result',
     steps(COMP_STEPS, 3),
-    h('div', { class: 'card' },
+    h('div', { class: 'card v-comp-result' },
       h('div', { class: `verdict ${correct ? 'ok' : 'bad'}` },
         h('div', { class: 'verdict-mark', 'aria-hidden': 'true' }, correct ? 'O' : 'X'),
         title(correct ? '정답이에요!' : selected === null ? '시간이 다 됐어요' : '아쉬워요, 오답이에요')),
-      h('p', { class: 'q-stem', style: { marginTop: '16px', fontSize: '19px' } }, item.stem),
+      h('p', { class: 'q-stem' }, item.stem),
       h('div', { class: 'choice-list' }, options.map((text, k) => {
         const cls = k === item.answer ? ' is-answer' : k === selected ? ' is-wrong' : '';
         const tag = k === item.answer ? '정답' : k === selected ? '내 답' : '';
         return h('div', { class: `option${cls}`, 'aria-disabled': 'true' },
           h('span', { class: 'key', 'aria-hidden': 'true' }, String(k + 1)), h('span', { style: { flex: 1 } }, text), tag ? h('b', { class: 'small' }, tag) : null);
       })),
-      h('div', { class: 'notice', style: { marginTop: '16px' } }, item.explanation),
-      h('p', { class: 'lead', style: { marginTop: '14px' } }, '시온 해설 덕분에 화면을 보지 않고도 답을 알 수 있었어요. 화면을 보며 들을 때 이해하는 정도를 100이라고 하면, 시온 해설을 함께 들었을 때는 소리만 들을 때보다 그 100에 20.8%p 더 가까워졌어요(강의·회의·보고 영상 30개로 잰 결과).'),
-      h('div', { class: 'btn-row', style: { marginTop: '18px' } }, done)));
+      h('div', { class: 'notice' }, item.explanation),
+      h('p', { class: 'lead' }, '시온 해설 덕분에 화면을 보지 않고도 답을 알 수 있었어요. 화면을 보며 들을 때 이해하는 정도를 100이라고 하면, 시온 해설을 함께 들었을 때는 소리만 들을 때보다 그 100에 20.8%p 더 가까워졌어요(강의·회의·보고 영상 30개로 잰 결과).'),
+      h('div', { class: 'btn-row' }, done)));
   done.focus();
 }
 

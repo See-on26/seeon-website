@@ -4,7 +4,8 @@ tools/story/script.json 의 lines[].say 를 ElevenLabs 음성으로 읽어 tools
 API 키와 목소리 ID 는 환경 변수로 준다(저장소에 넣지 않는다).
 
     set ELEVENLABS_API_KEY=...            (PowerShell: $env:ELEVENLABS_API_KEY="...")
-    set ELEVENLABS_VOICE_ID=...           ElevenLabs Voice Library 에서 고른 목소리의 ID
+    set ELEVENLABS_VOICE_ID=...           ElevenLabs Voice Library 에서 고른 목소리의 ID(내레이터)
+    set ELEVENLABS_PRESENTER_VOICE_ID=... 발표자 줄(n2)에 쓸, 내레이터와 다른 목소리의 ID
     python tools/elevenlabs_story.py              # 전부
     python tools/elevenlabs_story.py n2 n4        # 고른 줄만
     python tools/story_video.py                   # 그다음 영상을 다시 만든다
@@ -37,8 +38,8 @@ def speak(text, voice_id, key, path):
 
 def main():
     key = os.environ.get('ELEVENLABS_API_KEY')
-    voice_id = os.environ.get('ELEVENLABS_VOICE_ID')
-    if not key or not voice_id:
+    voices = {'voice': os.environ.get('ELEVENLABS_VOICE_ID'), 'presenter': os.environ.get('ELEVENLABS_PRESENTER_VOICE_ID')}
+    if not key or not voices['voice']:
         sys.exit('ELEVENLABS_API_KEY 와 ELEVENLABS_VOICE_ID 를 먼저 정해 주세요.')
     data = json.loads((HERE / 'script.json').read_text(encoding='utf-8'))
     VOICE.mkdir(exist_ok=True)
@@ -46,6 +47,10 @@ def main():
     made = json.loads(MADE.read_text(encoding='utf-8')) if MADE.exists() else {}
     for line in data['lines']:
         if only and line['id'] not in only:
+            continue
+        voice_id = voices.get(line.get('speaker', 'voice'))
+        if not voice_id:
+            print('skip', line['id'], '— 발표자 목소리는 ELEVENLABS_PRESENTER_VOICE_ID 로 정해 주세요(내레이터와 다른 목소리)')
             continue
         speak(line['say'], voice_id, key, VOICE / f"{line['id']}.mp3")
         made.pop(line['id'], None)  # 임시 음성 도구(story_tts.py)가 덮어쓰지 않게 표시를 지운다

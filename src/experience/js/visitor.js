@@ -288,7 +288,7 @@ function renderStart() {
     begin(booth);
   });
   const flow = [
-    ['STORY', '시온 STORY', '시온을 왜 만들었는지 짧은 영상으로 봐요.'],
+    ['STORY', '시온 STORY', '시온을 왜 만들었는지 30초 영상으로 봐요.'],
     ['LISTEN', 'SEEON 들어보기', '시온 해설이 붙은 영상을 화면과 함께 들어 봐요.'],
     ['QUIZ', '퀴즈', '빈자리 찾기나 듣고 맞히기 중 하나를 풀어요.'],
   ].slice(0, booth ? 3 : 1);

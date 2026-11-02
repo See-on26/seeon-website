@@ -87,8 +87,6 @@
 }
 .v-replay svg { display: block; width: 1.25em; height: 1.25em; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .v-replay:hover, .v-replay:focus-visible { background: #0067f2; border-color: #0067f2; }
-.v-replay.inline { position: static; transform: none; box-shadow: none; min-height: 56px; padding-block: 0; font-size: 18px; }
-
 /* CC 자막: 발표자 말은 검은 바탕 흰 글씨, 시온 해설은 파란 바탕에 (시온 AD)를 붙여 한 줄로. 둘이 함께 뜨면 해설이 위 */
 .v-cc { position: absolute; left: 0; right: 0; bottom: 5%; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 4%; pointer-events: none; }
 .v-cc-line {

@@ -135,8 +135,8 @@ const badge = h('div', { class: 'v-badge', hidden: true }, '여기서 정답이 
 
 // 「다시 보기」는 영상 안에 크게 띄운다(영상 밖의 작은 버튼은 잘 보이지 않았다)
 const REPLAY_ICON = '<svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>';
-const replayButton = (label, cls = 'v-replay') =>
-  h('button', { type: 'button', class: cls }, h('span', { 'aria-hidden': 'true', html: REPLAY_ICON }), h('span', null, label));
+const replayButton = (label) =>
+  h('button', { type: 'button', class: 'v-replay' }, h('span', { 'aria-hidden': 'true', html: REPLAY_ICON }), h('span', null, label));
 const replay = replayButton('다시 듣기');
 replay.hidden = true;
 let onReplay = null;
@@ -419,15 +419,15 @@ function renderDemo(r) {
   const signal = stepSignal(r);
   const demo = typeof data.demo === 'string' ? { clip: data.demo, start: 0, end: 1e6, rate: 1 } : data.demo;
   const clip = data.clips[demo.clip];
-  const again = replayButton('다시 보기', 'v-replay inline'); // 영상 위를 덮은 막 안에, 영상 안 「다시 보기」와 같은 꼴로
   const next = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, '다음으로 →');
-  // 다 듣고 나면 화면 전체를 반투명한 검은 막으로 덮고, 시온 STORY 자막과 같은 말투·꼴(흰 글씨, 핵심 낱말만 파란 글씨)로 풀어 준다
+  // 다 듣고 나면 화면 전체를 반투명한 검은 막으로 덮고, 시온 STORY 자막과 같은 말투·꼴(흰 글씨, 핵심 낱말만 파란 글씨)로 풀어 준다.
+  // 이 영상은 한 번만 들려준다(다시 보기 없음).
   const after = h('div', { class: 'v-overlay', hidden: true, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'v-demo-done' },
     h('div', { class: 'v-overlay-box' },
-      h('h2', { id: 'v-demo-done' }, ...storyText('방금 파란 자막과 함께 들린 목소리가 {시온}입니다.')),
+      h('h2', { id: 'v-demo-done' }, '방금 들으셨나요?'),
       h('p', null, ...storyText('발표자는 *“보시면 10.9, 9.3”*이라고만 말했습니다.'), h('br'),
-        ...storyText('어느 쪽이 남성이고 어느 쪽이 여성인지, 그 {빈자리}를 시온이 {소리}로 채웠습니다.')),
-      h('div', { class: 'btn-row v-center' }, again, next)));
+        ...storyText('어느 쪽이 남성이고 어느 쪽이 여성인지, 그 {빈자리}를 {시온}이 {소리}로 채웠습니다.')),
+      h('div', { class: 'btn-row v-center' }, next)));
   setBlind(false);
   bar.style.width = '0';
   view('demo',
@@ -436,13 +436,11 @@ function renderDemo(r) {
     h('div', { class: 'v-stage' }, player),
     after);
   const play = async () => {
-    after.hidden = true;
     await playSegment({ clipId: demo.clip, start: demo.start, end: demo.end, withAd: true, subs: true, rate: demo.rate || 1 }, signal);
     after.hidden = false;
     r.stage1 = true;
     next.focus();
   };
-  again.addEventListener('click', () => play().catch(ignoreAbort));
   next.addEventListener('click', () => {
     stopMedia();
     renderChoose(r);

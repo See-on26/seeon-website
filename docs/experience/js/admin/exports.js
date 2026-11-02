@@ -1,5 +1,5 @@
-import { clear, h } from '../common.js?v=9cdf8245';
-import { section, viewHead } from './ui.js?v=9cdf8245';
+import { clear, h } from '../common.js?v=425bb0d8';
+import { section, viewHead } from './ui.js?v=425bb0d8';
 
 const item = (title, desc, href, label) =>
   h('div', { class: 'panel', style: { display: 'flex', justifyContent: 'space-between', gap: '16px', alignItems: 'center', flexWrap: 'wrap' } },

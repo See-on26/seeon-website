@@ -1,7 +1,7 @@
-import { $, clear, h } from './common.js?v=9cdf8245';
-import { startScene, startWaves, storage } from './fx.js?v=9cdf8245';
-import { markSvg, mountLogos } from './logo.js?v=9cdf8245';
-import { requestFullscreen } from './player.js?v=9cdf8245';
+import { $, clear, h } from './common.js?v=425bb0d8';
+import { startScene, startWaves, storage } from './fx.js?v=425bb0d8';
+import { markSvg, mountLogos } from './logo.js?v=425bb0d8';
+import { requestFullscreen } from './player.js?v=425bb0d8';
 
 // 일반객 체험 (부스)
 // 시작 → 1단계(시온 STORY 영상 → SEEON 들어보기) → 2단계(퀴즈: 말에 화면 정보가 담겼는지 맞히기 5문제 또는 화면 없이 듣고 맞히기 1문제) → 완료(STAFF 안내)
@@ -426,7 +426,8 @@ function renderDemo(r) {
     h('div', { class: 'v-overlay-box' },
       h('h2', { id: 'v-demo-done' }, '방금 들으셨나요?'),
       h('p', null, ...storyText('발표자는 *“보시면 10.9, 9.3”*이라고만 말했습니다.'), h('br'),
-        ...storyText('어느 쪽이 남성이고 어느 쪽이 여성인지, 그 {빈자리}를 {시온}이 {소리}로 채웠습니다.')),
+        ...storyText('{시온}은 *남성이 10.9, 여성이 9.3*이라고 알려 주었습니다.'), h('br'),
+        ...storyText('화면에만 있던 정보의 {빈자리}를, 시온이 {소리}로 채웠습니다.')),
       h('div', { class: 'btn-row v-center' }, next)));
   setBlind(false);
   bar.style.width = '0';

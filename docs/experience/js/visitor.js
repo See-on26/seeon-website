@@ -1,7 +1,7 @@
-import { $, clear, h } from './common.js?v=ed4c6d15';
-import { startScene, startWaves, storage } from './fx.js?v=ed4c6d15';
-import { markSvg, mountLogos } from './logo.js?v=ed4c6d15';
-import { requestFullscreen } from './player.js?v=ed4c6d15';
+import { $, clear, h } from './common.js?v=7a11d1ea';
+import { startScene, startWaves, storage } from './fx.js?v=7a11d1ea';
+import { markSvg, mountLogos } from './logo.js?v=7a11d1ea';
+import { requestFullscreen } from './player.js?v=7a11d1ea';
 
 // 일반객 체험 (부스)
 // 시작 → 1단계(시온 STORY 영상 → SEEON 들어보기) → 2단계(퀴즈: 말에 화면 정보가 담겼는지 맞히기 5문제 또는 화면 없이 듣고 맞히기 1문제) → 완료(STAFF 안내)
@@ -106,6 +106,11 @@ function highlight(text, triggers = []) {
   out.push(text.slice(pos));
   return out;
 }
+
+// 시온 STORY 영상 자막과 같은 표시(tools/story/script.json 의 cap): *굵게*, {파란 글씨}
+const storyText = (markup) =>
+  markup.split(/(\*[^*]+\*|\{[^}]+\})/).filter(Boolean).map((s) =>
+    s[0] === '*' ? h('b', null, s.slice(1, -1)) : s[0] === '{' ? h('span', { class: 'blue' }, s.slice(1, -1)) : s);
 
 // 한 줄에 다 들어가도록 글자 크기를 줄인다
 function fitOneLine(el, min = 12) {
@@ -416,11 +421,12 @@ function renderDemo(r) {
   const clip = data.clips[demo.clip];
   const again = replayButton('다시 보기', 'v-replay inline'); // 영상 위를 덮은 막 안에, 영상 안 「다시 보기」와 같은 꼴로
   const next = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, '다음으로 →');
-  // 다 듣고 나면 화면 전체를 반투명한 검은 막으로 덮고 그 위에 크게 풀어 준다
+  // 다 듣고 나면 화면 전체를 반투명한 검은 막으로 덮고, 시온 STORY 자막과 같은 말투·꼴(흰 글씨, 핵심 낱말만 파란 글씨)로 풀어 준다
   const after = h('div', { class: 'v-overlay', hidden: true, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'v-demo-done' },
     h('div', { class: 'v-overlay-box' },
-      h('h2', { id: 'v-demo-done' }, '방금 ', h('b', { class: 'v-ad-chip' }, AD_LABEL), '가 시온의 목소리예요.'),
-      h('p', null, '발표자는 ', h('b', null, '“보시면 10.9, 9.3”'), '이라고만 했지만, 시온이 어느 쪽이 남성이고 어느 쪽이 여성인지 알려 줬어요.'),
+      h('h2', { id: 'v-demo-done' }, ...storyText('방금 파란 자막과 함께 들린 목소리가 {시온}입니다.')),
+      h('p', null, ...storyText('발표자는 *“보시면 10.9, 9.3”*이라고만 말했습니다.'), h('br'),
+        ...storyText('어느 쪽이 남성이고 어느 쪽이 여성인지, 그 {빈자리}를 시온이 {소리}로 채웠습니다.')),
       h('div', { class: 'btn-row v-center' }, again, next)));
   setBlind(false);
   bar.style.width = '0';

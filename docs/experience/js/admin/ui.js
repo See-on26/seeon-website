@@ -1,4 +1,4 @@
-import { api, ApiError, h } from '../common.js?v=ed4c6d15';
+import { api, ApiError, h } from '../common.js?v=7a11d1ea';
 
 let onUnauthorized = () => {};
 export const setUnauthorizedHandler = (fn) => (onUnauthorized = fn);

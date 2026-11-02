@@ -7,7 +7,6 @@
 .visitor-page .page[data-screen='story'], .visitor-page .page[data-screen='demo'] { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
 .v-stage { flex: 1 1 0; min-height: 220px; container-type: size; display: grid; justify-items: center; align-content: start; }
 .v-stage > .v-film-wrap, .v-stage > .v-player { width: min(100cqw, (100cqh - 10px) * 16 / 9); }
-.v-after.waiting { visibility: hidden; }
 @media (max-height: 780px) {
   .visitor-page .topbar { padding-block: 12px; }
   .visitor-page .steps { margin-bottom: 12px; }
@@ -109,11 +108,18 @@
 
 /* ---------- SEEON 들어보기 ---------- */
 .visitor-page .page[data-screen='demo'] .lead { margin-bottom: 12px; }
-.v-demo-after { flex: none; display: flex; align-items: center; gap: 16px; margin-top: 14px; }
-.v-demo-after .v-note { flex: 1 1 auto; min-width: 0; }
-.v-demo-after .btn-row { flex: none; flex-wrap: nowrap; }
-@media (max-width: 760px) { .v-demo-after { flex-direction: column; align-items: stretch; } }
-.v-note { font-size: 17px; line-height: 1.6; }
+/* 다 듣고 나면: 화면 전체를 반투명한 검은 막으로 덮고 가운데에 큰 글로 풀어 준다 */
+.v-overlay {
+  position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 24px max(24px, 5vw);
+  background: rgb(0 0 0 / 0.82); backdrop-filter: blur(3px); animation: v-fade 0.35s ease-out;
+}
+.v-overlay-box { display: grid; justify-items: center; gap: 24px; max-width: 1100px; text-align: center; }
+.v-overlay h2 { margin: 0; color: #fff; font-size: clamp(30px, 3.6vw, 52px); font-weight: 800; line-height: 1.3; letter-spacing: -0.02em; text-wrap: balance; }
+.v-overlay p { margin: 0; color: #dfe5ee; font-size: clamp(22px, 2.3vw, 32px); line-height: 1.6; word-break: keep-all; text-wrap: balance; }
+.v-overlay p b { color: #fff; }
+.v-overlay .btn-row { margin-top: 12px; }
+.v-ad-chip { display: inline-block; padding: 0 0.28em; border-radius: 6px; background: rgb(0 103 242 / 0.92); color: #fff; }
+@keyframes v-fade { from { opacity: 0; } }
 
 /* ---------- 퀴즈 고르기 ---------- */
 .v-time { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 18px; padding: 8px 14px; border-radius: 999px; background: rgb(0 103 242 / 0.18); border: 1px solid rgb(90 169 255 / 0.35); color: #fff; font-weight: 650; }
@@ -197,7 +203,7 @@
 .v-hold.holding .v-hold-fill { transform: scaleX(1); transition-property: transform; }
 
 @media (prefers-reduced-motion: reduce) {
-  .v-badge { animation: none; }
+  .v-badge, .v-overlay { animation: none; }
   .v-choice { transition: none; }
 }
 @media (max-width: 600px) { .visitor-page .topbar-meta { display: none; } }

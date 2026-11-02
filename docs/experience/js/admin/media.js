@@ -1,5 +1,5 @@
-import { clear, confirmDialog, fmtBytes, fmtClock, fmtDateTime, h, probeDuration, toast, upload } from '../common.js?v=4a63c8d2';
-import { adminApi, section, table, viewHead } from './ui.js?v=4a63c8d2';
+import { clear, confirmDialog, fmtBytes, fmtClock, fmtDateTime, h, probeDuration, toast, upload } from '../common.js?v=a07da9f1';
+import { adminApi, section, table, viewHead } from './ui.js?v=a07da9f1';
 
 const ACCEPT = '.mp4,.webm,.mov,.m4v,.mp3,.wav,.m4a,.aac,.ogg,.oga,.flac';
 

@@ -1,7 +1,7 @@
-import { $, clear, h } from './common.js?v=4a63c8d2';
-import { startScene, startWaves, storage } from './fx.js?v=4a63c8d2';
-import { markSvg, mountLogos } from './logo.js?v=4a63c8d2';
-import { requestFullscreen } from './player.js?v=4a63c8d2';
+import { $, clear, h } from './common.js?v=a07da9f1';
+import { startScene, startWaves, storage } from './fx.js?v=a07da9f1';
+import { markSvg, mountLogos } from './logo.js?v=a07da9f1';
+import { requestFullscreen } from './player.js?v=a07da9f1';
 
 // 일반객 체험 (부스)
 // 시작 → 1단계(시온 STORY 영상 → SEEON 들어보기) → 2단계(퀴즈: 말에 화면 정보가 담겼는지 맞히기 5문제 또는 화면 없이 듣고 맞히기 1문제) → 완료(STAFF 안내)
@@ -393,12 +393,12 @@ function renderDemo(r) {
   const clip = data.clips[demo.clip];
   const replay = h('button', { type: 'button', class: 'btn btn-lg' }, '다시 보기');
   const next = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, '다음으로 →');
-  // 다 듣고 나면 보이는 안내와 버튼. 자리는 처음부터 잡아 둬 영상 크기가 바뀌지 않는다
-  const after = h('div', { class: 'v-after v-demo-after waiting' },
-    h('div', { class: 'notice v-note' },
-      h('strong', null, `방금 ${AD_LABEL}가 시온의 목소리예요. `),
-      '발표자는 "보시면 10.9, 9.3"이라고만 했지만, 시온이 어느 쪽이 남성이고 어느 쪽이 여성인지 알려 줬어요.'),
-    h('div', { class: 'btn-row' }, replay, next));
+  // 다 듣고 나면 화면 전체를 반투명한 검은 막으로 덮고 그 위에 크게 풀어 준다
+  const after = h('div', { class: 'v-overlay', hidden: true, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'v-demo-done' },
+    h('div', { class: 'v-overlay-box' },
+      h('h2', { id: 'v-demo-done' }, '방금 ', h('b', { class: 'v-ad-chip' }, AD_LABEL), '가 시온의 목소리예요.'),
+      h('p', null, '발표자는 ', h('b', null, '“보시면 10.9, 9.3”'), '이라고만 했지만, 시온이 어느 쪽이 남성이고 어느 쪽이 여성인지 알려 줬어요.'),
+      h('div', { class: 'btn-row v-center' }, replay, next)));
   setBlind(false);
   bar.style.width = '0';
   view('demo',
@@ -407,11 +407,11 @@ function renderDemo(r) {
     h('div', { class: 'v-stage' }, player),
     after);
   const play = async () => {
-    after.classList.add('waiting');
+    after.hidden = true;
     replay.disabled = true;
     await playSegment({ clipId: demo.clip, start: demo.start, end: demo.end, withAd: true, subs: true, rate: demo.rate || 1 }, signal);
     replay.disabled = false;
-    after.classList.remove('waiting');
+    after.hidden = false;
     r.stage1 = true;
     next.focus();
   };

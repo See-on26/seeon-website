@@ -35,8 +35,8 @@ seeon-website/
 ├─ archive/            사이트에 나오지 않는 임시 보관 (예전 체험 페이지: experience-v1/)
 ├─ fonts/              Pretendard Variable 원본과 라이선스
 ├─ build.py            src/ → docs/ 조립, 글꼴 줄이기
-├─ tools/             story_video.py·story/(시온 STORY 영상과 재료) · story_tts.py·elevenlabs_story.py(그 내레이션) · make_ad.py(해설 음성) · serve.py(부스용 로컬 서버)
-├─ 부스 실행.bat        인터넷 없이 부스 노트북에서 일반객 체험 띄우기
+├─ tools/             story_video.py·story/(시온 STORY 영상과 재료) · story_tts.py·elevenlabs_story.py(그 내레이션) · make_ad.py(해설 음성) · serve.py(부스용 로컬 서버) · make_booth_usb.py·booth_usb/(부스 노트북에 넘길 USB 폴더)
+├─ 부스 실행.bat        Python 이 있는 PC 에서 인터넷 없이 일반객 체험 띄우기
 └─ requirements.txt
 ```
 
@@ -129,6 +129,14 @@ GitHub Pages에는 평가 서버(Node·데이터베이스)가 없어서, 서버�
 해설 문장이나 목소리(`voice.ad`)를 바꾸면 `python tools/make_ad.py` 로 음성을 다시 만들어요(`pip install edge-tts`, 바뀐 것만 만들어요. 전부 다시는 `--all`).
 
 **부스에서 띄우기** — 인터넷이 되면 공개 주소의 `experience/visitor.html` 을 Chrome 키오스크로 열면 돼요. 인터넷 없이 띄우려면 이 저장소를 받아 `부스 실행.bat` 을 더블클릭해요. `tools/serve.py`(영상 중간으로 건너뛸 수 있게 Range 요청을 받는 로컬 서버)로 `docs/` 를 열고 Chrome 키오스크 화면을 띄워요. Python 3 과 Chrome 이 있어야 해요.
+
+**부스 노트북에 USB 로 넘기기** — `python tools/make_booth_usb.py` 가 저장소 옆에 `seeon-booth-usb/` 폴더(약 30 MB)를 만들어요. 이 폴더만 노트북에 복사해 `시작.bat` 을 더블클릭하면 인터넷도 Python 도 없이 체험이 키오스크 화면으로 떠요. 고친 뒤에는 `python build.py` 로 `docs/` 를 먼저 새로 만들고 다시 돌려요.
+
+- `site/` 는 `docs/` 를 통째로 복사한 것이에요(체험이 `../images/` 도 써요).
+- `server/booth.ps1` 은 Windows PowerShell 5.1 의 HttpListener 로 `site/` 를 `http://localhost:8090/` 에 내보내요. Range(206)를 받고 `?v=` 는 무시해요. 8090 이 쓰이고 있으면 8099 까지 빈 포트를 찾아요. 켜져 있는 동안 화면·절전이 꺼지지 않게 붙잡아 둬요.
+- 화면은 Chrome(없으면 Edge `--edge-kiosk-type=fullscreen`) 키오스크로, `%LOCALAPPDATA%\SeeonBooth` 의 따로 된 프로필로 띄워요. `끝내기.bat` 은 그 프로필의 브라우저와 서버만 꺼요.
+- `자동 시작 켜기.bat`/`끄기.bat` 은 시작 프로그램 폴더에 `시작.bat` 바로 가기를 두거나 지워요. 직원용 안내는 `사용법.txt` 에 있어요.
+- 만들 때 사이트가 바깥 주소에서 불러오는 것(글꼴·CDN·이미지)이 있는지 훑어 알려 줘요.
 
 ## 내용의 기준
 

@@ -436,7 +436,7 @@ def build():
         count = lambda s: len(re.sub(r'[\s“”‘’\'"]', '', s)) + 2.5 * s.count(',')  # noqa: E731
         return S(k) + dur(k) * count(say[:i]) / count(say)
 
-    # 바탕(뒤에 적은 것이 위에 덮인다). n2·n3(손글씨 인용)과 n5(로고)는 검은 화면이다.
+    # 바탕(뒤에 적은 것이 위에 덮인다). n2·n3(손글씨 인용)과 n5(가운데 큰 글)는 검은 화면이다.
     bg = [
         Footage('meeting', 0.0, S('n2') - 0.05, fade_in=0.7, fade_out=0.55, zoom=(1.0, 1.08), pan=(0.3, 0)),
         Footage('braille', mid('n3', 'n4') - 0.05, mid('n4', 'n5') + 0.35, fade_in=0.7, fade_out=0.7, zoom=(1.0, 1.1), pan=(-0.3, 0)),
@@ -451,7 +451,7 @@ def build():
             im = im.resize((round(im.width * scale), round(im.height * scale)), Image.LANCZOS)
         return Sprite(im)
 
-    mark, logo_open, logo_end = art('logo_mark'), art('logo_open'), art('logo_end')
+    mark, logo_end = art('logo_mark'), art('logo_end')
     q_white, q_blue = art('quote_white', QUOTE_SCALE), art('quote_blue', QUOTE_SCALE)
     over = []
 
@@ -485,7 +485,7 @@ def build():
         if not cap or k in ('n5', 'n7'):
             continue
         nxt = S(order[i + 1]) - 0.08 if i + 1 < len(order) else total
-        im, _ = text_image(cap, 30)
+        im, _ = text_image(cap, 34)
         caps.append((Sprite(im), S(k) - 0.05, min(E(k) + 0.3, nxt)))
 
     def captions(c, t):
@@ -496,7 +496,7 @@ def build():
     over.append(captions)
 
     # n4: 92% (설문 24명 중 22명)
-    stat_label = Sprite(text_image('설문에 답한 시각장애인 24명 중 22명', 24, color=(225, 230, 240))[0])
+    stat_label = Sprite(text_image('설문에 답한 시각장애인 24명 중 22명', 28, color=(225, 230, 240))[0])
     nums = {}
 
     def stat(c, t):
@@ -512,19 +512,17 @@ def build():
         put(c, stat_label, (W - stat_label.w) / 2, 372 + rise, a)
     over.append(stat)
 
-    # n5: 검은 화면에 로고 + 가운데 글
-    n5_text = Sprite(text_image(lines['n5']['cap'], 34, weight='SemiBold')[0])
+    # n5: 검은 화면 가운데 큰 글(로고는 끝 화면에만 — 여기는 이야기의 한가운데다)
+    n5_text = Sprite(text_image(lines['n5']['cap'], 56, weight='Bold')[0])
 
     def pivot(c, t):
-        t0 = mid('n4', 'n5') - 0.1
-        a = ramp(t, t0, E('n5') + 0.45, 0.6, 0.45)
-        rise = 8 * (1 - ease((t - t0) / 0.6))
-        put(c, logo_open, (W - logo_open.w) / 2, 238 + rise, a)
-        put(c, n5_text, (W - n5_text.w) / 2, 336 + rise, ramp(t, S('n5') + 0.1, E('n5') + 0.45, 0.5, 0.45))
+        t0 = mid('n4', 'n5')  # 점자 장면이 사라지는 동안 떠오른다
+        rise = 10 * (1 - ease((t - t0) / 0.6))
+        put(c, n5_text, (W - n5_text.w) / 2, (H - n5_text.h) / 2 - 12 + rise, ramp(t, t0, E('n5') + 0.45, 0.5, 0.45))
     over.append(pivot)
 
     # n7: 끝 화면
-    end_text = Sprite(text_image(lines['n7']['cap'], 24, color=INK, shadow=False)[0])
+    end_text = Sprite(text_image(lines['n7']['cap'], 30, color=INK, shadow=False)[0])
 
     def endcard(c, t):
         a = ramp(t, mid('n6', 'n7') - 0.05, total + 1, 0.6, 0)

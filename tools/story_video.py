@@ -39,8 +39,9 @@ PAPER = (254, 254, 252)   # 끝 화면 바탕(본선 인트로와 같은 흰색)
 
 # 줄이 끝나고 다음 줄까지 쉬는 시간(초). 장면이 바뀌는 곳은 길게 둔다. 마지막 줄 뒤는 끝 화면에 머무는 시간.
 GAP = {'n1': 0.4, 'n2': 0.5, 'n3': 0.7, 'n4': 0.8, 'n5': 0.5, 'n6': 0.8, 'n7': 1.5}
-MIN_GAP, MIN_HOLD = 0.25, 1.0  # 30초를 넘을 때 줄일 수 있는 한도
+MIN_GAP, MIN_HOLD = 0.35, 1.2  # 30초를 넘을 때 줄일 수 있는 한도(장면이 바뀔 틈은 남긴다)
 MAX_LEN = 30.0
+MAX_TEMPO = 1.06  # 30초를 넘을 때 말을 이만큼까지 빠르게 한다(음 높이는 그대로)
 LEAD = 0.6  # 첫 줄 앞
 QUOTE_SCALE = 1.15  # 손글씨 인용(1080p 에서 오린 780px)을 이만큼 키워 가운데에 띄운다
 MUSIC = 'safe_future_intro_30s.mp3'
@@ -313,6 +314,13 @@ def level(a, target_db, floor_db=-40):
     return a * (10 ** (target_db / 20) / np.sqrt(np.mean(on ** 2)))
 
 
+def tempo(a, f):
+    """말을 f 배 빠르게 한다(ffmpeg atempo, 음 높이는 그대로)."""
+    out = subprocess.run([FF, '-v', 'error', '-f', 'f32le', '-ar', str(SR), '-ac', '1', '-i', '-', '-af', f'atempo={f:.4f}',
+                          '-f', 'f32le', '-'], input=a.tobytes(), capture_output=True, check=True).stdout
+    return np.frombuffer(out, np.float32).copy()
+
+
 def beat_period(a):
     """박자 길이(초)를 어림한다. 음악을 이어 붙일 때 마디를 맞추려고 쓴다."""
     hop = 441
@@ -398,13 +406,19 @@ def build():
     gaps = [GAP.get(k, 0.5) for k in order]
     floor = [MIN_GAP] * (len(order) - 1) + [MIN_HOLD]
     speech = sum(len(voice[k]) for k in order) / SR
+    if LEAD + speech + sum(gaps) > MAX_LEN:  # 30초를 넘으면 먼저 말을 조금 빠르게 하고
+        f = min(MAX_TEMPO, speech / (MAX_LEN - LEAD - sum(gaps)))
+        voice = {k: tempo(a, f) for k, a in voice.items()}
+        speech = sum(len(voice[k]) for k in order) / SR
+        print(f'  30초에 맞추려고 말을 {f:.3f}배 빠르게 했어요')
     over_by = LEAD + speech + sum(gaps) - MAX_LEN
-    if over_by > 0:  # 30초를 넘으면 쉼을 같은 비율로 줄인다(말은 건드리지 않는다)
+    if over_by > 0:  # 그래도 넘으면 쉼을 같은 비율로 줄인다
         room = sum(g - f for g, f in zip(gaps, floor))
         keep = max(0.0, 1 - over_by / room) if room > 0 else 0.0
         gaps = [f + (g - f) * keep for g, f in zip(gaps, floor)]
         if LEAD + speech + sum(gaps) > MAX_LEN + 0.01:
-            print(f'※ 내레이션만 {speech:.1f}초라 {MAX_LEN:.0f}초를 넘어요. ElevenLabs 의 속도(Speed)를 올리거나 문장을 줄여 주세요.')
+            print(f'※ 말을 {MAX_TEMPO}배로 하고 쉼을 다 줄여도 {LEAD + speech + sum(gaps):.1f}초예요(말 {speech:.1f}초). '
+                  'ElevenLabs 의 속도(Speed)를 올리거나 문장을 줄여 주세요.')
     T, t = {}, LEAD
     for k, g in zip(order, gaps):
         T[k] = (t, t + len(voice[k]) / SR)
@@ -413,6 +427,7 @@ def build():
     S = lambda k: T[k][0]  # noqa: E731
     E = lambda k: T[k][1]  # noqa: E731
     dur = lambda k: E(k) - S(k)  # noqa: E731
+    mid = lambda a, b: (E(a) + S(b)) / 2  # noqa: E731  두 줄 사이 쉼의 가운데(장면은 여기서 바뀐다)
 
     def said_at(k, word):
         """줄 k 에서 word 를 말하는 때를 글자 수로 어림한다."""
@@ -424,9 +439,9 @@ def build():
     # 바탕(뒤에 적은 것이 위에 덮인다). n2·n3(손글씨 인용)과 n5(로고)는 검은 화면이다.
     bg = [
         Footage('meeting', 0.0, S('n2') - 0.05, fade_in=0.7, fade_out=0.55, zoom=(1.0, 1.08), pan=(0.3, 0)),
-        Footage('braille', S('n4') - 0.4, E('n4') + 0.9, fade_in=0.8, fade_out=0.9, zoom=(1.0, 1.1), pan=(-0.3, 0)),
+        Footage('braille', mid('n3', 'n4') - 0.05, mid('n4', 'n5') + 0.35, fade_in=0.7, fade_out=0.7, zoom=(1.0, 1.1), pan=(-0.3, 0)),
         Footage('headphones', E('n5') + 0.15, E('n6') + 1.2, fade_in=0.8, zoom=(1.0, 1.08), pan=(0.3, 0)),
-        Solid(PAPER, E('n6') + 0.25, total + 1, fade_in=0.8),
+        Solid(PAPER, E('n6') + 0.15, total + 1, fade_in=0.7),
     ]
 
     # 얹는 것들
@@ -441,26 +456,26 @@ def build():
     over = []
 
     def watermark(c, t):  # 손글씨 인용이 떠 있는 동안은 그 문장만 보이게 숨긴다
-        a = max(ramp(t, 0.6, S('n2') - 0.1, 0.6, 0.4), ramp(t, S('n4') - 0.3, S('n5') - 0.5, 0.6, 0.6),
+        a = max(ramp(t, 0.6, S('n2') - 0.1, 0.6, 0.4), ramp(t, mid('n3', 'n4'), mid('n4', 'n5') - 0.2, 0.6, 0.5),
                 ramp(t, E('n5') + 0.5, E('n6') + 0.4, 0.6, 0.5))
         put(c, mark, W - mark.w - 26, 20, a)
     over.append(watermark)
 
     # n2·n3: 검은 화면 가운데 손글씨 인용. 글씨 쓰듯 왼쪽부터 드러나고, n3 에서 '여기'를 말할 때 파랗게.
-    q_t0, q_t1 = S('n2') - 0.25, min(E('n3') + 0.45, S('n4') - 0.4)  # 다음 장면이 들어오기 전에 사라진다
+    q_t0, q_t1 = S('n2') - 0.25, mid('n3', 'n4') + 0.15  # 다음 장면과 살짝 겹치며 사라진다
     t_blue = said_at('n3', '여기')
     qx, qy = (W - q_white.w) / 2, (H - q_white.h) / 2 - 24
     cols = np.arange(q_white.w, dtype=np.float32)
 
     def quote(c, t):
-        a = ramp(t, q_t0, q_t1, 0.15, 0.5)
+        a = ramp(t, q_t0, q_t1, 0.15, 0.4)
         if a <= 0:
             return
         p = ease((t - q_t0) / 0.8)
         edge = 80.0
         mask = np.clip((p * (q_white.w + edge) - cols) / edge, 0, 1)
         put(c, q_white, qx, qy, a, mask)
-        put(c, q_blue, qx, qy, a * ramp(t, t_blue - 0.05, q_t1, 0.3, 0.5), mask)
+        put(c, q_blue, qx, qy, a * ramp(t, t_blue - 0.05, q_t1, 0.3, 0.4), mask)
     over.append(quote)
 
     # 아래 자막: 내레이션을 그대로(가운데 글이 따로 있는 n2·n5·n7 은 빼고)
@@ -485,7 +500,7 @@ def build():
     nums = {}
 
     def stat(c, t):
-        a = ramp(t, S('n4') + 0.05, E('n4') + 0.35, 0.4, 0.4)
+        a = ramp(t, S('n4') + 0.05, mid('n4', 'n5') + 0.05, 0.4, 0.35)
         if a <= 0:
             return
         v = round(92 * ease((t - S('n4') - 0.15) / 1.3))
@@ -501,8 +516,9 @@ def build():
     n5_text = Sprite(text_image(lines['n5']['cap'], 34, weight='SemiBold')[0])
 
     def pivot(c, t):
-        a = ramp(t, S('n5') - 0.55, E('n5') + 0.45, 0.7, 0.45)
-        rise = 8 * (1 - ease((t - S('n5') + 0.55) / 0.7))
+        t0 = mid('n4', 'n5') - 0.1
+        a = ramp(t, t0, E('n5') + 0.45, 0.6, 0.45)
+        rise = 8 * (1 - ease((t - t0) / 0.6))
         put(c, logo_open, (W - logo_open.w) / 2, 238 + rise, a)
         put(c, n5_text, (W - n5_text.w) / 2, 336 + rise, ramp(t, S('n5') + 0.1, E('n5') + 0.45, 0.5, 0.45))
     over.append(pivot)
@@ -511,7 +527,7 @@ def build():
     end_text = Sprite(text_image(lines['n7']['cap'], 24, color=INK, shadow=False)[0])
 
     def endcard(c, t):
-        a = ramp(t, E('n6') + 0.7, total + 1, 0.7, 0)
+        a = ramp(t, mid('n6', 'n7') - 0.05, total + 1, 0.6, 0)
         put(c, logo_end, (W - logo_end.w) / 2, 280, a)
         put(c, end_text, (W - end_text.w) / 2, 384, ramp(t, S('n7') - 0.1, total + 1, 0.6, 0))
     over.append(endcard)

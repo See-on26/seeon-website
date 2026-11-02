@@ -68,14 +68,15 @@
 .v-progress { height: 4px; border-radius: 2px; background: rgb(255 255 255 / 0.12); overflow: hidden; }
 .v-progress > div { height: 100%; width: 0; background: #0067f2; }
 
-/* CC 자막: 검은 바탕 흰 글씨. 시온 해설은 (시온 AD)를 붙여 한 줄로 */
-.v-cc { position: absolute; left: 0; right: 0; bottom: 5%; display: flex; justify-content: center; padding: 0 4%; pointer-events: none; }
+/* CC 자막: 발표자 말은 검은 바탕 흰 글씨, 시온 해설은 파란 바탕에 (시온 AD)를 붙여 한 줄로. 둘이 함께 뜨면 해설이 위 */
+.v-cc { position: absolute; left: 0; right: 0; bottom: 5%; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 4%; pointer-events: none; }
 .v-cc-line {
   display: inline-block; max-width: 100%; padding: 6px 14px; background: rgb(0 0 0 / 0.82); color: #fff;
   font-size: clamp(17px, 2.2vw, 30px); font-weight: 600; line-height: 1.45; text-align: center; word-break: keep-all;
 }
-.v-cc-line.ad { white-space: nowrap; overflow: hidden; }
-.v-cc-label { color: #6aaeff; font-weight: 800; }
+.v-cc-line[hidden] { display: none; }
+.v-cc-line.ad { white-space: nowrap; overflow: hidden; background: rgb(0 103 242 / 0.92); }
+.v-cc-label { color: #fff; font-weight: 800; }
 
 .v-split { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(320px, 1fr); gap: 20px; align-items: start; }
 .v-split > .card { margin-top: 0; }

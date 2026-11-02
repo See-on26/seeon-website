@@ -4,7 +4,7 @@ import { markSvg, mountLogos } from './logo.js';
 import { requestFullscreen } from './player.js';
 
 // 일반객 체험 (부스)
-// 시작 → 1단계(시온 STORY 영상 → SEEON 들어보기) → 2단계(퀴즈: 빈자리 찾기 5문제 또는 듣고 맞히기 1문제) → 완료(STAFF 안내)
+// 시작 → 1단계(시온 STORY 영상 → SEEON 들어보기) → 2단계(퀴즈: 말에 화면 정보가 담겼는지 맞히기 5문제 또는 화면 없이 듣고 맞히기 1문제) → 완료(STAFF 안내)
 // 영상·해설·문항은 data/visitor/, 시온 STORY 영상은 story/ 에 있다.
 // STAFF: Esc 를 2초 누르면 어디서든 처음으로, S 는 지금 단계 건너뛰기(점검용, 간식 안내는 띄우지 않는다).
 
@@ -123,41 +123,40 @@ const coverAd = h('p', { class: 'v-cover-ad', hidden: true }, `${AD_LABEL} 시�
 const cover = h('div', { class: 'v-cover', 'aria-hidden': 'true' },
   h('div', { class: 'listen-mark mark-live', html: markSvg({ label: '' }) }),
   h('p', null, '화면은 가려져 있어요. 소리에 집중해 주세요'), coverAd);
-const ccLine = h('span', { class: 'v-cc-line' });
-const cc = h('div', { class: 'v-cc', hidden: true, 'aria-live': 'polite' }, ccLine);
+const ccAd = h('span', { class: 'v-cc-line ad', hidden: true });
+const ccLine = h('span', { class: 'v-cc-line', hidden: true });
+const cc = h('div', { class: 'v-cc', 'aria-live': 'polite' }, ccAd, ccLine);
 const badge = h('div', { class: 'v-badge', hidden: true }, '여기서 정답이 보여요');
 const bar = h('div');
 const player = h('div', { class: 'v-player' },
   h('div', { class: 'v-screen' }, video, cover, cc, badge),
   h('div', { class: 'v-progress', 'aria-hidden': 'true' }, bar));
 let adAudio = null;
-let adOn = false;
 
 const setBlind = (on) => player.classList.toggle('blind', on);
 
-// CC 자막: 발표자 말은 흰 글씨, 시온 해설은 「(시온 AD)」를 붙여 한 줄로
-function showCaption(text, { ad = false } = {}) {
-  ccLine.classList.toggle('ad', ad);
-  if (ad) clear(ccLine, h('b', { class: 'v-cc-label' }, AD_LABEL), ' ', text);
-  else ccLine.textContent = text;
-  cc.hidden = false;
-  if (ad) fitOneLine(ccLine);
-  else ccLine.style.fontSize = '';
+// CC 자막 두 줄: 아래는 발표자 말(검은 바탕), 그 위는 시온 해설(파란 바탕, 「(시온 AD)」를 붙여 한 줄로). 둘은 함께 뜰 수 있다.
+function showCaption(text) {
+  ccLine.textContent = text;
+  ccLine.hidden = false;
 }
 function hideCaption() {
-  cc.hidden = true;
+  ccLine.hidden = true;
   ccLine.textContent = '';
 }
 
 function showAd(cue, withText) {
-  adOn = true;
-  if (withText) showCaption(cue.text, { ad: true });
+  if (withText) {
+    clear(ccAd, h('b', { class: 'v-cc-label' }, AD_LABEL), ' ', cue.text);
+    ccAd.hidden = false;
+    fitOneLine(ccAd);
+  }
   coverAd.hidden = false;
   player.classList.add('speaking');
 }
 function hideAd() {
-  adOn = false;
-  if (ccLine.classList.contains('ad')) hideCaption();
+  ccAd.hidden = true;
+  ccAd.textContent = '';
   coverAd.hidden = true;
   player.classList.remove('speaking');
 }
@@ -218,7 +217,7 @@ async function playSegment({ clipId, start, end, withAd = true, captions = true,
   end = Math.min(end, video.duration || end);
   await seek(start, signal);
   const cues = withAd ? clip.ad.filter((a) => a.at >= start - 0.05 && a.at < end).map((a) => ({ ...a, done: false })) : [];
-  const lines = subs ? clip.subs || [] : [];
+  const lines = subs ? (clip.subs || []).filter((l) => l.end > start + 0.2) : []; // 앞 문장의 끝자락이 번쩍이지 않게
   const duck = [];
   const runCue = async (cue) => {
     cue.done = true;
@@ -245,22 +244,22 @@ async function playSegment({ clipId, start, end, withAd = true, captions = true,
       const now = video.currentTime;
       bar.style.width = `${Math.min(100, ((now - start) / (end - start)) * 100)}%`;
       onTime?.(now);
-      if (lines.length && !adOn) {
+      // 해설을 먼저 본다: 영상을 멈추는 해설 동안에는 그 앞까지 하던 말의 자막을 그대로 둔다
+      const cue = cues.find((c) => !c.done && now >= c.at);
+      if (cue) {
+        try {
+          await runCue(cue);
+          if (cue.mode !== 'duck') await video.play();
+        } catch (err) {
+          return reject(err);
+        }
+      }
+      if (lines.length) {
         const line = lines.find((l) => now >= l.start && now < l.end);
         if (line !== shown) {
           shown = line;
           if (line) showCaption(line.text);
           else hideCaption();
-        }
-      }
-      const cue = cues.find((c) => !c.done && now >= c.at);
-      if (cue) {
-        try {
-          await runCue(cue);
-          shown = null;
-          if (cue.mode !== 'duck') await video.play();
-        } catch (err) {
-          return reject(err);
         }
       }
       if (now >= end - 0.03 || video.ended) {
@@ -290,16 +289,14 @@ function renderStart() {
   const flow = [
     ['STORY', '시온 STORY', '시온을 왜 만들었는지 30초 영상으로 봐요.'],
     ['LISTEN', 'SEEON 들어보기', '시온 해설이 붙은 영상을 화면과 함께 들어 봐요.'],
-    ['QUIZ', '퀴즈', '빈자리 찾기나 듣고 맞히기 중 하나를 풀어요.'],
+    ['QUIZ', '퀴즈', '두 가지 퀴즈 중 하나를 풀어요.'],
   ].slice(0, booth ? 3 : 1);
   view('start',
     h('div', { class: 'card hud-card v-start-card' },
       h('span', { class: 'corners', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'), h('i')),
       eyebrow('SEEON EXPERIENCE'),
       title('화면 없이, 소리로 따라가 보세요'),
-      h('p', { class: 'lead' }, booth
-        ? '시온이 무엇인지 보고, 시온 해설이 붙은 영상을 들은 뒤, 퀴즈를 풀어 보세요. 3분쯤 걸려요.'
-        : '퀴즈 체험은 시온 부스에서 할 수 있어요. 여기서는 시온을 왜 만들었는지 영상으로 볼 수 있어요.'),
+      booth ? null : h('p', { class: 'lead' }, '퀴즈 체험은 시온 부스에서 할 수 있어요. 여기서는 시온을 왜 만들었는지 영상으로 볼 수 있어요.'),
       h('ol', { class: 'v-flow' }, flow.map(([k, t, d]) =>
         h('li', null, h('b', { lang: 'en' }, k), h('strong', null, t), h('span', null, d)))),
       h('p', { class: 'v-phones' },
@@ -401,7 +398,7 @@ function renderDemo(r) {
   view('demo',
     steps(MAIN_STEPS, 1),
     title('SEEON 들어보기'),
-    h('p', { class: 'lead' }, `「${clip.title}」을 설명하는 장면이에요. 흰 자막은 발표자의 말, ${AD_LABEL}는 시온의 해설이에요.`),
+    h('p', { class: 'lead' }, `「${clip.title}」을 설명하는 장면이에요. 검은 자막은 발표자의 말, 파란 자막 ${AD_LABEL}는 시온의 해설이에요.`),
     player,
     after);
   const play = async () => {
@@ -444,13 +441,13 @@ function renderChoose(r) {
   view('choose',
     steps(MAIN_STEPS, 2),
     title('어떤 퀴즈를 풀어 볼까요?'),
-    h('p', { class: 'v-time' }, h('span', { 'aria-hidden': 'true' }, '⏱'), ' 예상 시간 약 1분 30초 · 둘 중 하나를 골라 주세요'),
+    h('p', { class: 'v-time' }, h('span', { 'aria-hidden': 'true' }, '⏱'), ' 예상 시간 약 1분 30초'),
     h('div', { class: 'v-choices' },
-      card('det', 'DETECTION', '시온처럼 빈자리 찾기', '발표자의 말 한 마디를 듣고, 화면을 봐야 알 수 있는 말인지 맞혀 보세요.'),
+      card('det', 'DETECTION', '말에 화면 정보가 담겼는지 맞히기', '발표자의 말 한 마디를 듣고, 화면을 봐야 알 수 있는 말인지 맞혀 보세요.'),
       card('comp', 'LISTENING', '화면 없이 듣고 맞히기', '화면을 가린 채 시온 해설만 듣고, 화면 속 정답을 맞혀 보세요.')));
 }
 
-// ---------- 2단계 ① 탐지: 빈자리 찾기 ----------
+// ---------- 2단계 ① 탐지: 말에 화면 정보가 담겼는지 맞히기 ----------
 // 영상마다 한 문장씩 5문제. 빈자리 3개, 아닌 것 2개를 섞는다.
 function pickDetection() {
   const byClip = new Map();
@@ -497,7 +494,7 @@ async function detectionItem(item, i, total, signal) {
   bar.style.width = '0';
   view('detection',
     h('div', { class: 'q-head' },
-      h('h1', { class: 'page-title v-quiz-title', tabindex: '-1' }, '시온처럼 빈자리 찾기'),
+      h('h1', { class: 'page-title v-quiz-title', tabindex: '-1' }, '말에 화면 정보가 담겼는지 맞히기'),
       h('span', { class: 'q-count' }, `${i + 1} / ${total}`)),
     h('div', { class: 'v-split' },
       player,
@@ -508,7 +505,7 @@ async function detectionItem(item, i, total, signal) {
 
   const listen = async () => {
     [yes, no, again].forEach((b) => (b.disabled = true));
-    await playSegment({ clipId: item.clip, start: item.start, end: item.end, withAd: false }, signal);
+    await playSegment({ clipId: item.clip, start: item.start, end: item.end, withAd: false, subs: true }, signal);
     [yes, no, again].forEach((b) => (b.disabled = false));
   };
   again.addEventListener('click', () => listen().catch(ignoreAbort));
@@ -549,6 +546,7 @@ async function detectionItem(item, i, total, signal) {
   const clicked = once(next, 'click', signal).then(() => 'next');
   const cue = item.gap && data.clips[item.clip].ad.find((a) => a.id === item.ad);
   if (cue) {
+    showCaption(item.text); // 발표자가 한 말과 그 빈자리를 채우는 시온 해설을 함께 보여 준다
     showAd(cue, true);
     const said = playAd(cue, signal).then(() => 'ad');
     said.catch(() => {});
@@ -559,6 +557,7 @@ async function detectionItem(item, i, total, signal) {
   }
   await Promise.race([clicked, sleep(cue ? 4000 : 6000, signal)]);
   hideAd();
+  hideCaption();
   return { correct, choice };
 }
 
@@ -575,7 +574,7 @@ function renderDetectionResult(r, items, results) {
           h('b', { 'aria-label': results[k].correct ? '맞힘' : '틀림' }, results[k].correct ? 'O' : 'X'),
           h('span', null, '“', ...highlight(it.text, it.triggers), '”'),
           h('em', null, it.gap ? '빈자리' : '빈자리 아님')))),
-      h('p', { class: 'lead', style: { marginTop: '16px' } }, '시온은 이런 판단을 한국어·영어 3,600문항에서 F1 점수 96.1로 해냈어요.'),
+      h('p', { class: 'lead', style: { marginTop: '16px' } }, '시온도 발표자의 말을 들으며 방금처럼 판단해요. 한국어·영어 문장 3,600개로 시험했을 때, 화면을 봐야 알 수 있는 말을 놓치지 않고 정확하게 골라낸 정도가 100점 만점에 96.1점(F1 점수)이었어요.'),
       h('div', { class: 'btn-row', style: { marginTop: '18px' } }, done)));
   done.focus();
 }
@@ -635,7 +634,7 @@ async function runComprehension(r) {
   window.addEventListener('keydown', onKey);
   try {
     await sleep(700, signal);
-    await playSegment({ clipId: item.clip, start: item.start, end: item.end, withAd: true, captions: false }, signal);
+    await playSegment({ clipId: item.clip, start: item.start, end: item.end, withAd: true, subs: true }, signal);
     listened = true;
     setStep(1);
     hint.textContent = '이제 답을 골라 주세요.';
@@ -654,7 +653,7 @@ async function runComprehension(r) {
     hint.textContent = '이번에는 화면과 함께 봐요. 정답이 화면에 나와요.';
     setBlind(false);
     await playSegment({
-      clipId: item.clip, start: Math.max(0, item.answerAt - 5), end: item.answerAt + 6, withAd: false,
+      clipId: item.clip, start: Math.max(0, item.answerAt - 5), end: item.answerAt + 6, withAd: false, subs: true,
       onTime: (t) => (badge.hidden = t < item.answerAt - 0.3),
     }, signal);
     badge.hidden = true;
@@ -687,7 +686,7 @@ function renderComprehensionResult(r, item, options, selected) {
           h('span', { class: 'key', 'aria-hidden': 'true' }, String(k + 1)), h('span', { style: { flex: 1 } }, text), tag ? h('b', { class: 'small' }, tag) : null);
       })),
       h('div', { class: 'notice', style: { marginTop: '16px' } }, item.explanation),
-      h('p', { class: 'lead', style: { marginTop: '14px' } }, '시온 해설 덕분에 화면을 보지 않고도 답을 알 수 있었어요. 평가에서 시온 해설은 화면을 보며 이해하는 수준에 20.8%p 더 가깝게 해 줬어요.'),
+      h('p', { class: 'lead', style: { marginTop: '14px' } }, '시온 해설 덕분에 화면을 보지 않고도 답을 알 수 있었어요. 화면을 보며 들을 때 이해하는 정도를 100이라고 하면, 시온 해설을 함께 들었을 때는 소리만 들을 때보다 그 100에 20.8%p 더 가까워졌어요(강의·회의·보고 영상 30개로 잰 결과).'),
       h('div', { class: 'btn-row', style: { marginTop: '18px' } }, done)));
   done.focus();
 }

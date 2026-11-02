@@ -1,5 +1,5 @@
-import { api, clear, confirmDialog, h, modal, toast } from '../common.js?v=a07da9f1';
-import { adminApi, condChip, field, mediaSelect, section, table, viewHead, yesNo } from './ui.js?v=a07da9f1';
+import { api, clear, confirmDialog, h, modal, toast } from '../common.js?v=ed4c6d15';
+import { adminApi, condChip, field, mediaSelect, section, table, viewHead, yesNo } from './ui.js?v=ed4c6d15';
 
 const SLOT_DESC = {
   A: '발표 음성만 (사용 전). 원본 영상 파일을 그대로 골라도 됩니다 — 화면은 가려집니다.',

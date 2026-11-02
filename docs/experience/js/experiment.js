@@ -1,6 +1,6 @@
-import { $, api, clear, fmtClock, h, toast } from './common.js?v=a07da9f1';
-import { mountLogos } from './logo.js?v=a07da9f1';
-import { exitFullscreen, LockedPlayer, playChime, requestFullscreen } from './player.js?v=a07da9f1';
+import { $, api, clear, fmtClock, h, toast } from './common.js?v=ed4c6d15';
+import { mountLogos } from './logo.js?v=ed4c6d15';
+import { exitFullscreen, LockedPlayer, playChime, requestFullscreen } from './player.js?v=ed4c6d15';
 
 const TOKEN_KEY = 'seeon.exp.token';
 const STEPS = ['인적사항', '실험 안내', '실험', '완료'];

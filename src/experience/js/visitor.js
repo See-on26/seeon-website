@@ -127,9 +127,28 @@ const ccAd = h('span', { class: 'v-cc-line ad', hidden: true });
 const ccLine = h('span', { class: 'v-cc-line', hidden: true });
 const cc = h('div', { class: 'v-cc', 'aria-live': 'polite' }, ccAd, ccLine);
 const badge = h('div', { class: 'v-badge', hidden: true }, '여기서 정답이 보여요');
+
+// 「다시 보기」는 영상 안에 크게 띄운다(영상 밖의 작은 버튼은 잘 보이지 않았다)
+const REPLAY_ICON = '<svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>';
+const replayButton = (label, cls = 'v-replay') =>
+  h('button', { type: 'button', class: cls }, h('span', { 'aria-hidden': 'true', html: REPLAY_ICON }), h('span', null, label));
+const replay = replayButton('다시 듣기');
+replay.hidden = true;
+let onReplay = null;
+replay.addEventListener('click', () => onReplay?.());
+function showReplay(label, action) {
+  replay.lastChild.textContent = label;
+  onReplay = action;
+  replay.hidden = false;
+}
+function hideReplay() {
+  replay.hidden = true;
+  onReplay = null;
+}
+
 const bar = h('div');
 const player = h('div', { class: 'v-player' },
-  h('div', { class: 'v-screen' }, video, cover, cc, badge),
+  h('div', { class: 'v-screen' }, video, cover, cc, badge, replay),
   h('div', { class: 'v-progress', 'aria-hidden': 'true' }, bar));
 let adAudio = null;
 
@@ -167,6 +186,7 @@ function stopMedia() {
   adAudio = null;
   hideAd();
   hideCaption();
+  hideReplay();
   badge.hidden = true;
 }
 
@@ -249,7 +269,8 @@ async function playSegment({ clipId, start, end, withAd = true, captions = true,
       if (cue) {
         try {
           await runCue(cue);
-          if (cue.mode !== 'duck') await video.play();
+          // 구간 끝에 걸린 해설 뒤에는 다시 틀지 않는다(다음 말의 첫소리가 묻어나지 않게)
+          if (cue.mode !== 'duck' && video.currentTime < end - 0.03) await video.play();
         } catch (err) {
           return reject(err);
         }
@@ -321,19 +342,21 @@ function reset() {
 
 // ---------- 1단계 ① 시온 STORY (한 편의 영상) ----------
 // 문제 → 시온으로 이어지는 영상(tools/story_video.py 로 만든다). 내레이션·자막은 영상에 들어 있다.
-// 시작 5초 뒤 「건너뛰기」, 끝나면 「다시 보기」·「넘기기」.
+// 시작 5초 뒤 「건너뛰기」, 끝나면 영상 안에 「다시 보기」, 아래에 「넘기기」.
 async function playStory(r) {
   const signal = stepSignal(r);
   const film = h('video', { class: 'v-intro', src: story.video, playsinline: true, preload: 'auto' });
   const skip = h('button', { type: 'button', class: 'v-skip', hidden: true },
     '건너뛰기', h('span', { 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24"><path d="M5 5v14l10-7z"/><path d="M17 5h2v14h-2z"/></svg>' }));
+  const again = replayButton('다시 보기');
+  again.hidden = true;
   const fill = h('div');
   const after = h('div', { class: 'v-after', hidden: true });
   view('story',
     r.booth ? steps(MAIN_STEPS, 0) : null,
     h('h1', { class: 'v-sr', tabindex: '-1' }, '시온 STORY'),
     h('div', { class: 'v-stage' },
-      h('div', { class: 'v-film-wrap' }, h('div', { class: 'v-film' }, film, skip), h('div', { class: 'v-progress', 'aria-hidden': 'true' }, fill))),
+      h('div', { class: 'v-film-wrap' }, h('div', { class: 'v-film' }, film, skip, again), h('div', { class: 'v-progress', 'aria-hidden': 'true' }, fill))),
     h('div', { class: 'v-after-slot' }, after)); // 끝난 뒤 나오는 버튼 자리를 미리 비워 둬 영상 크기가 그대로다
   const goDemo = () => {
     if (screen !== 'story' || run !== r) return;
@@ -359,11 +382,11 @@ async function playStory(r) {
     if (screen !== 'story' || run !== r) return;
     fill.style.width = '100%';
     skip.hidden = true;
-    const again = h('button', { type: 'button', class: 'btn btn-lg' }, '다시 보기');
     const next = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, '넘기기 →');
     again.addEventListener('click', () => playStory(r).catch(ignoreAbort));
     next.addEventListener('click', goDemo);
-    clear(after, h('div', { class: 'btn-row v-center' }, again, next));
+    clear(after, h('div', { class: 'btn-row v-center' }, next));
+    again.hidden = false;
     after.hidden = false;
     next.focus();
   }, { once: true });
@@ -391,14 +414,14 @@ function renderDemo(r) {
   const signal = stepSignal(r);
   const demo = typeof data.demo === 'string' ? { clip: data.demo, start: 0, end: 1e6, rate: 1 } : data.demo;
   const clip = data.clips[demo.clip];
-  const replay = h('button', { type: 'button', class: 'btn btn-lg' }, '다시 보기');
+  const again = replayButton('다시 보기', 'v-replay inline'); // 영상 위를 덮은 막 안에, 영상 안 「다시 보기」와 같은 꼴로
   const next = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, '다음으로 →');
   // 다 듣고 나면 화면 전체를 반투명한 검은 막으로 덮고 그 위에 크게 풀어 준다
   const after = h('div', { class: 'v-overlay', hidden: true, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'v-demo-done' },
     h('div', { class: 'v-overlay-box' },
       h('h2', { id: 'v-demo-done' }, '방금 ', h('b', { class: 'v-ad-chip' }, AD_LABEL), '가 시온의 목소리예요.'),
       h('p', null, '발표자는 ', h('b', null, '“보시면 10.9, 9.3”'), '이라고만 했지만, 시온이 어느 쪽이 남성이고 어느 쪽이 여성인지 알려 줬어요.'),
-      h('div', { class: 'btn-row v-center' }, replay, next)));
+      h('div', { class: 'btn-row v-center' }, again, next)));
   setBlind(false);
   bar.style.width = '0';
   view('demo',
@@ -408,14 +431,12 @@ function renderDemo(r) {
     after);
   const play = async () => {
     after.hidden = true;
-    replay.disabled = true;
     await playSegment({ clipId: demo.clip, start: demo.start, end: demo.end, withAd: true, subs: true, rate: demo.rate || 1 }, signal);
-    replay.disabled = false;
     after.hidden = false;
     r.stage1 = true;
     next.focus();
   };
-  replay.addEventListener('click', () => play().catch(ignoreAbort));
+  again.addEventListener('click', () => play().catch(ignoreAbort));
   next.addEventListener('click', () => {
     stopMedia();
     renderChoose(r);
@@ -485,11 +506,9 @@ async function runDetection(r) {
 async function detectionItem(item, i, total, signal) {
   const yes = h('button', { type: 'button', class: 'v-ox o', disabled: true }, h('b', null, 'O'), '화면을 봐야 알 수 있어요');
   const no = h('button', { type: 'button', class: 'v-ox x', disabled: true }, h('b', null, 'X'), '말로 충분해요');
-  const again = h('button', { type: 'button', class: 'btn btn-sm', disabled: true }, '↺ 다시 듣기');
   const ask = h('div', { class: 'v-ask' },
     h('p', { class: 'q-stem' }, '이 말, 화면을 봐야 알 수 있을까요?'),
-    h('div', { class: 'v-ox-row' }, yes, no),
-    h('div', { class: 'btn-row', style: { marginTop: '10px' } }, again));
+    h('div', { class: 'v-ox-row' }, yes, no));
   const out = h('div', { class: 'v-reveal', hidden: true });
   setBlind(true);
   bar.style.width = '0';
@@ -505,12 +524,14 @@ async function detectionItem(item, i, total, signal) {
         h('p', { class: 'v-legend' }, h('mark', { class: 'trig' }, '파란 글씨'), '는 시온이 "화면을 가리키는 말"로 보는 표현이에요.'),
         ask, out)));
 
+  // 다 들으면 가려진 영상 안에 「다시 듣기」
   const listen = async () => {
-    [yes, no, again].forEach((b) => (b.disabled = true));
+    [yes, no].forEach((b) => (b.disabled = true));
+    hideReplay();
     await playSegment({ clipId: item.clip, start: item.context?.start ?? item.start, end: item.end, withAd: false, subs: true }, signal);
-    [yes, no, again].forEach((b) => (b.disabled = false));
+    [yes, no].forEach((b) => (b.disabled = false));
+    showReplay('다시 듣기', () => listen().catch(ignoreAbort));
   };
-  again.addEventListener('click', () => listen().catch(ignoreAbort));
   await sleep(400, signal);
   await listen();
   yes.focus();
@@ -533,6 +554,7 @@ async function detectionItem(item, i, total, signal) {
 
   const correct = choice === item.gap;
   ask.hidden = true;
+  hideReplay();
   setBlind(false);
   await seek(item.frame, signal);
   const next = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, i + 1 < total ? '다음 문제 →' : '결과 보기 →');
@@ -654,10 +676,13 @@ async function runComprehension(r) {
     confirm.hidden = true;
     hint.textContent = '이번에는 화면과 함께 봐요. 정답이 화면에 나와요.';
     setBlind(false);
+    // reveal: 정답이 보이는 장면을 말이 끊기지 않게 문장 단위로 잡은 구간. 끝나면 마지막 장면을 잠깐 더 보여 준다
+    const reveal = item.reveal || { start: Math.max(0, item.answerAt - 5), end: item.answerAt + 6 };
     await playSegment({
-      clipId: item.clip, start: Math.max(0, item.answerAt - 5), end: item.answerAt + 6, withAd: false, subs: true,
+      clipId: item.clip, start: reveal.start, end: reveal.end, withAd: false, subs: true,
       onTime: (t) => (badge.hidden = t < item.answerAt - 0.3),
     }, signal);
+    await sleep(1500, signal);
     badge.hidden = true;
   } catch (err) {
     window.removeEventListener('keydown', onKey);

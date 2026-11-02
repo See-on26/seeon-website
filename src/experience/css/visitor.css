@@ -78,6 +78,16 @@
 @keyframes v-pulse { 50% { transform: scale(1.06); } }
 .v-progress { height: 4px; border-radius: 2px; background: rgb(255 255 255 / 0.12); overflow: hidden; }
 .v-progress > div { height: 100%; width: 0; background: #0067f2; }
+/* 영상 안 「다시 보기」·「다시 듣기」: 다 틀고 나면 영상 아래쪽 가운데에 크게(밝은 끝 화면 위에서도 보이게 어두운 바탕 + 흰 테) */
+.v-replay {
+  position: absolute; left: 50%; bottom: 12%; transform: translateX(-50%); z-index: 3;
+  display: inline-flex; align-items: center; gap: 10px; padding: 12px 28px 12px 20px; border-radius: 999px; white-space: nowrap;
+  border: 2px solid #fff; background: rgb(8 12 20 / 0.78); color: #fff; box-shadow: 0 8px 28px rgb(0 0 0 / 0.4);
+  font: inherit; font-size: clamp(18px, 1.9vw, 24px); font-weight: 750; cursor: pointer;
+}
+.v-replay svg { display: block; width: 1.25em; height: 1.25em; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.v-replay:hover, .v-replay:focus-visible { background: #0067f2; border-color: #0067f2; }
+.v-replay.inline { position: static; transform: none; box-shadow: none; min-height: 56px; padding-block: 0; font-size: 18px; }
 
 /* CC 자막: 발표자 말은 검은 바탕 흰 글씨, 시온 해설은 파란 바탕에 (시온 AD)를 붙여 한 줄로. 둘이 함께 뜨면 해설이 위 */
 .v-cc { position: absolute; left: 0; right: 0; bottom: 5%; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 4%; pointer-events: none; }

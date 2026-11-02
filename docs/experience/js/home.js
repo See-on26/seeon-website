@@ -1,5 +1,5 @@
-import { reducedMotion, startScene, startWaves, storage } from './fx.js?v=6b1cbb46';
-import { markSvg, mountLogos, wordmarkSvg } from './logo.js?v=6b1cbb46';
+import { reducedMotion, startScene, startWaves, storage } from './fx.js?v=c0ce606d';
+import { markSvg, mountLogos, wordmarkSvg } from './logo.js?v=c0ce606d';
 
 const INTRO_KEY = 'seeon.intro.seen';
 

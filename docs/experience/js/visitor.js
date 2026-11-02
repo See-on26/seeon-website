@@ -1,7 +1,7 @@
-import { $, clear, h } from './common.js?v=6b1cbb46';
-import { startScene, startWaves, storage } from './fx.js?v=6b1cbb46';
-import { markSvg, mountLogos } from './logo.js?v=6b1cbb46';
-import { requestFullscreen } from './player.js?v=6b1cbb46';
+import { $, clear, h } from './common.js?v=c0ce606d';
+import { startScene, startWaves, storage } from './fx.js?v=c0ce606d';
+import { markSvg, mountLogos } from './logo.js?v=c0ce606d';
+import { requestFullscreen } from './player.js?v=c0ce606d';
 
 // 일반객 체험 (부스)
 // 시작 → 1단계(시온 STORY 영상 → SEEON 들어보기) → 2단계(퀴즈: 말에 화면 정보가 담겼는지 맞히기 5문제 또는 화면 없이 듣고 맞히기 1문제) → 완료(STAFF 안내)
@@ -171,7 +171,7 @@ function stopMedia() {
 }
 
 async function playAd(cue, signal, rate = 1) {
-  const audio = new Audio(DATA + 'ad/' + cue.id + '.mp3');
+  const audio = new Audio(DATA + 'ad/' + cue.id + '.mp3' + (cue.v ? `?v=${cue.v}` : '')); // v: 빌드가 붙이는 음성 버전
   audio.playbackRate = rate;
   adAudio = audio;
   waves.setEnergy(1.0);

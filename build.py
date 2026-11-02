@@ -304,9 +304,10 @@ def subset_font(text, out):
 
 
 def stamp_experience(root):
-    """체험의 css·js 주소와 시온 STORY 영상 주소에 버전(내용 해시)을 붙인다.
-    GitHub Pages 는 파일을 10분(max-age=600) 동안 다시 묻지 않고 쓰게 해서, 고친 뒤에도 옛 화면이 보인다.
+    """체험의 css·js 주소와 영상·해설 음성 주소에 버전(내용 해시)을 붙인다.
+    GitHub Pages 는 파일을 10분(max-age=600) 동안 다시 묻지 않고 쓰게 해서, 고친 뒤에도 옛 화면·소리가 나온다.
     모듈 import 도 모두 같은 버전을 붙여야 한 모듈이 두 번 읽히지 않는다."""
+    file_ver = lambda p: hashlib.sha1(p.read_bytes()).hexdigest()[:8]  # noqa: E731
     files = sorted(p for p in root.rglob('*') if p.suffix in ('.html', '.css', '.js', '.json'))
     ver = hashlib.sha1(b''.join(p.read_bytes() for p in files)).hexdigest()[:8]
     for p in root.rglob('*.html'):
@@ -322,8 +323,19 @@ def stamp_experience(root):
         data = json.loads(story.read_text(encoding='utf-8'))
         video = root / data.get('video', '')
         if data.get('video') and video.is_file():
-            data['video'] += '?v=' + hashlib.sha1(video.read_bytes()).hexdigest()[:8]
+            data['video'] += '?v=' + file_ver(video)
             story.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    visitor = root / 'data' / 'visitor' / 'visitor.json'
+    if visitor.exists():  # 일반객 체험: 영상 주소에 버전, 해설 음성은 v 를 적어 두면 visitor.js 가 주소에 붙인다
+        data = json.loads(visitor.read_text(encoding='utf-8'))
+        for clip in data.get('clips', {}).values():
+            if (visitor.parent / clip['video']).is_file():
+                clip['video'] += '?v=' + file_ver(visitor.parent / clip['video'])
+            for cue in clip.get('ad', []):
+                mp3 = visitor.parent / 'ad' / f"{cue['id']}.mp3"
+                if mp3.is_file():
+                    cue['v'] = file_ver(mp3)
+        visitor.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     return ver
 
 

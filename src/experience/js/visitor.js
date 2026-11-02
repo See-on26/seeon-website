@@ -171,7 +171,7 @@ function stopMedia() {
 }
 
 async function playAd(cue, signal, rate = 1) {
-  const audio = new Audio(DATA + 'ad/' + cue.id + '.mp3');
+  const audio = new Audio(DATA + 'ad/' + cue.id + '.mp3' + (cue.v ? `?v=${cue.v}` : '')); // v: 빌드가 붙이는 음성 버전
   audio.playbackRate = rate;
   adAudio = audio;
   waves.setEnergy(1.0);

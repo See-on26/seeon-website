@@ -5,11 +5,14 @@
 - 글꼴은 Pretendard 에서 사이트에 쓰는 글자만 남겨 woff2 로 만든다.
   OFL 의 예약 글꼴 이름(Pretendard) 때문에 줄인 글꼴은 이름을 SeeonText 로 바꾼다.
 - 체험(src/experience/)은 seeon-eval-web 의 화면을 옮긴 것이라 조립하지 않고 그대로 docs/experience/ 로 복사한다.
+  다만 css·js 주소에는 버전을 붙여, 고친 뒤 브라우저가 옛 파일을 쓰지 않게 한다(stamp_experience).
 
     pip install -r requirements.txt
     python build.py
 """
+import hashlib
 import html
+import json
 import re
 import shutil
 from pathlib import Path
@@ -300,6 +303,30 @@ def subset_font(text, out):
     subset.save_font(font, str(out), opts)
 
 
+def stamp_experience(root):
+    """체험의 css·js 주소와 시온 STORY 영상 주소에 버전(내용 해시)을 붙인다.
+    GitHub Pages 는 파일을 10분(max-age=600) 동안 다시 묻지 않고 쓰게 해서, 고친 뒤에도 옛 화면이 보인다.
+    모듈 import 도 모두 같은 버전을 붙여야 한 모듈이 두 번 읽히지 않는다."""
+    files = sorted(p for p in root.rglob('*') if p.suffix in ('.html', '.css', '.js', '.json'))
+    ver = hashlib.sha1(b''.join(p.read_bytes() for p in files)).hexdigest()[:8]
+    for p in root.rglob('*.html'):
+        t = p.read_text(encoding='utf-8')
+        p.write_text(re.sub(r'((?:href|src)="(?![a-z]+:|//)[^"?#]+\.(?:css|js))"', rf'\1?v={ver}"', t), encoding='utf-8')
+    for p in root.rglob('*.js'):
+        t = p.read_text(encoding='utf-8')
+        s = re.sub(r"""((?:from|import)\s*\(?\s*(['"])\.{1,2}/[^'"?]+\.js)\2""", rf'\1?v={ver}\2', t)
+        if s != t:
+            p.write_text(s, encoding='utf-8')
+    story = root / 'story' / 'story.json'
+    if story.exists():
+        data = json.loads(story.read_text(encoding='utf-8'))
+        video = root / data.get('video', '')
+        if data.get('video') and video.is_file():
+            data['video'] += '?v=' + hashlib.sha1(video.read_bytes()).hexdigest()[:8]
+            story.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    return ver
+
+
 def clean_out():
     OUT.mkdir(exist_ok=True)
     for item in OUT.iterdir():
@@ -325,6 +352,7 @@ def main():
     shutil.copy(FONT_LICENSE, OUT / 'assets' / 'fonts' / 'LICENSE-Pretendard.txt')
     shutil.copytree(SRC / 'images', OUT / 'images')
     shutil.copytree(SRC / 'experience', OUT / 'experience')
+    print('체험 버전', stamp_experience(OUT / 'experience'))
     (OUT / 'experience.html').write_text(OLD_EXPERIENCE, encoding='utf-8')
     (OUT / '.nojekyll').write_text('', encoding='utf-8')
 

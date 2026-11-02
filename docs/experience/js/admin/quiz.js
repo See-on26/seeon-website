@@ -1,5 +1,5 @@
-import { clear, confirmDialog, fmtClock, fmtPct, h, modal, toast } from '../common.js';
-import { adminApi, field, mediaLabel, mediaSelect, section, table, viewHead, yesNo } from './ui.js';
+import { clear, confirmDialog, fmtClock, fmtPct, h, modal, toast } from '../common.js?v=a472df33';
+import { adminApi, field, mediaLabel, mediaSelect, section, table, viewHead, yesNo } from './ui.js?v=a472df33';
 
 // "1:23", "83", "1:02:03" → 초. 빈칸은 null
 function parseTime(text) {

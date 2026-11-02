@@ -1,14 +1,14 @@
-import { $, api, clear, h, toast } from '../common.js';
-import * as analysis from './analysis.js';
-import * as contents from './contents.js';
-import * as dashboard from './dashboard.js';
-import * as exportsView from './exports.js';
-import * as media from './media.js';
-import * as participants from './participants.js';
-import * as quiz from './quiz.js';
-import * as settings from './settings.js';
-import { setUnauthorizedHandler } from './ui.js';
-import { mountLogos } from '../logo.js';
+import { $, api, clear, h, toast } from '../common.js?v=a472df33';
+import * as analysis from './analysis.js?v=a472df33';
+import * as contents from './contents.js?v=a472df33';
+import * as dashboard from './dashboard.js?v=a472df33';
+import * as exportsView from './exports.js?v=a472df33';
+import * as media from './media.js?v=a472df33';
+import * as participants from './participants.js?v=a472df33';
+import * as quiz from './quiz.js?v=a472df33';
+import * as settings from './settings.js?v=a472df33';
+import { setUnauthorizedHandler } from './ui.js?v=a472df33';
+import { mountLogos } from '../logo.js?v=a472df33';
 
 mountLogos();
 

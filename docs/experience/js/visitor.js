@@ -1,11 +1,11 @@
 import { $, clear, h } from './common.js';
-import { reducedMotion, startScene, startWaves, storage } from './fx.js';
+import { startScene, startWaves, storage } from './fx.js';
 import { markSvg, mountLogos } from './logo.js';
 import { requestFullscreen } from './player.js';
 
 // 일반객 체험 (부스)
 // 시작 → 1단계(시온 STORY 영상 → SEEON 들어보기) → 2단계(퀴즈: 빈자리 찾기 5문제 또는 듣고 맞히기 1문제) → 완료(STAFF 안내)
-// 영상·해설·문항은 data/visitor/, 시온 STORY 의 장면·내레이션은 story/ 에 있다.
+// 영상·해설·문항은 data/visitor/, 시온 STORY 영상은 story/ 에 있다.
 // STAFF: Esc 를 2초 누르면 어디서든 처음으로, S 는 지금 단계 건너뛰기(점검용, 간식 안내는 띄우지 않는다).
 
 const DATA = 'data/visitor/';
@@ -288,7 +288,7 @@ function renderStart() {
     begin(booth);
   });
   const flow = [
-    ['STORY', '시온 STORY', '시온을 왜 만들었는지 30초 영상으로 봐요.'],
+    ['STORY', '시온 STORY', '시온을 왜 만들었는지 짧은 영상으로 봐요.'],
     ['LISTEN', 'SEEON 들어보기', '시온 해설이 붙은 영상을 화면과 함께 들어 봐요.'],
     ['QUIZ', '퀴즈', '빈자리 찾기나 듣고 맞히기 중 하나를 풀어요.'],
   ].slice(0, booth ? 3 : 1);
@@ -322,39 +322,12 @@ function reset() {
   renderStart();
 }
 
-// ---------- 1단계 ① 시온 STORY (실사 바탕 + 내레이션 + CC 자막) ----------
-// 줄마다 내레이션 파일을 틀고, 그 길이만큼 장면을 천천히 움직인다. 시작 5초 뒤 「건너뛰기」, 끝나면 「넘기기」.
-const shotTransform = (m = {}) => `translate(${m.x || 0}%, ${m.y || 0}%) scale(${m.scale || 1})`;
-
-function shotBody(shot) {
-  if (shot?.card) {
-    return h('div', { class: 'v-endcard' },
-      h('div', { class: 'v-endcard-mark mark-live', html: markSvg({ label: '' }) }),
-      h('p', null, shot.card));
-  }
-  if (shot?.video) {
-    return h('video', { src: shot.video, muted: true, playsinline: true, autoplay: true, loop: true, style: { objectPosition: shot.position || '50% 50%' } });
-  }
-  return h('img', { src: shot?.image || '', alt: '', style: { objectPosition: shot?.position || '50% 50%' } });
-}
-
-function loadLineAudio(line) {
-  const audio = new Audio(STORY + line.id + '.mp3');
-  audio.preload = 'auto';
-  const guess = Math.max(2.5, line.say.length * 0.17); // 파일이 없을 때 읽는 시간 짐작
-  const ready = new Promise((resolve) => {
-    const done = (ok) => resolve({ audio: ok ? audio : null, dur: ok && isFinite(audio.duration) ? audio.duration : guess });
-    audio.addEventListener('loadedmetadata', () => done(true), { once: true });
-    audio.addEventListener('error', () => done(false), { once: true });
-    setTimeout(() => done(audio.readyState >= 1), 4000);
-  });
-  return ready;
-}
-
-// 본선 제출 영상의 인트로(로고만 지금 것으로 바꾼 한 편의 영상)를 그대로 튼다. 내레이션·자막은 영상에 들어 있다.
-async function playIntro(r) {
+// ---------- 1단계 ① 시온 STORY (한 편의 영상) ----------
+// 문제 → 시온으로 이어지는 영상(tools/story_video.py 로 만든다). 내레이션·자막은 영상에 들어 있다.
+// 시작 5초 뒤 「건너뛰기」, 끝나면 「다시 보기」·「넘기기」.
+async function playStory(r) {
   const signal = stepSignal(r);
-  const film = h('video', { class: 'v-intro', src: story.intro.video, playsinline: true, preload: 'auto' });
+  const film = h('video', { class: 'v-intro', src: story.video, playsinline: true, preload: 'auto' });
   const skip = h('button', { type: 'button', class: 'v-skip', hidden: true },
     '건너뛰기', h('span', { 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24"><path d="M5 5v14l10-7z"/><path d="M17 5h2v14h-2z"/></svg>' }));
   const fill = h('div');
@@ -390,7 +363,7 @@ async function playIntro(r) {
     skip.hidden = true;
     const again = h('button', { type: 'button', class: 'btn btn-lg' }, '다시 보기');
     const next = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, '넘기기 →');
-    again.addEventListener('click', () => playIntro(r).catch(ignoreAbort));
+    again.addEventListener('click', () => playStory(r).catch(ignoreAbort));
     next.addEventListener('click', goDemo);
     clear(after, h('div', { class: 'btn-row v-center' }, again, next));
     after.hidden = false;
@@ -403,149 +376,6 @@ async function playIntro(r) {
     film.muted = true;
     await film.play().catch(() => {});
   }
-}
-
-async function playStory(r) {
-  if (story.intro?.video && story.use !== 'lines') return playIntro(r);
-  const signal = stepSignal(r);
-  const lines = story.lines || [];
-  const gapMs = (story.gap ?? 0.3) * 1000;
-  const layers = [h('div', { class: 'v-shot' }), h('div', { class: 'v-shot' })];
-  let front = 0;
-  let shownShot = null;
-  const storyLine = h('span', { class: 'v-cc-line' });
-  const storyCc = h('div', { class: 'v-cc story', hidden: true }, storyLine);
-  const skip = h('button', { type: 'button', class: 'v-skip', hidden: true },
-    '건너뛰기', h('span', { 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24"><path d="M5 5v14l10-7z"/><path d="M17 5h2v14h-2z"/></svg>' }));
-  const fill = h('div');
-  const after = h('div', { class: 'v-after v-story-after', hidden: true });
-  const film = h('div', { class: 'v-film' }, ...layers, h('div', { class: 'v-vignette', 'aria-hidden': 'true' }), storyCc, skip);
-  view('story',
-    r.booth ? steps(MAIN_STEPS, 0) : null,
-    h('h1', { class: 'v-sr', tabindex: '-1' }, '시온 STORY'),
-    h('div', { class: 'v-film-wrap' }, film, h('div', { class: 'v-progress', 'aria-hidden': 'true' }, fill)),
-    after);
-
-  const footage = new Map(); // 장면 이름 → 미리 받아 둔 영상
-  const setShot = (name, ms) => {
-    if (name === shownShot) return;
-    shownShot = name;
-    const shot = story.shots?.[name];
-    const next = layers[1 - front];
-    const prev = layers[front];
-    const media = (shot?.video && footage.get(name)) || shotBody(shot);
-    clear(next, media);
-    if (shot?.video) {
-      media.currentTime = 0;
-      media.play().catch(() => {});
-    }
-    if (media && !shot?.card && !reducedMotion()) {
-      media.style.transition = 'none';
-      media.style.transform = shotTransform(shot?.from);
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        media.style.transition = `transform ${ms}ms linear`;
-        media.style.transform = shotTransform(shot?.to || shot?.from);
-      }));
-    }
-    next.classList.add('on');
-    prev.classList.remove('on');
-    front = 1 - front;
-  };
-
-  // 이 영상만 멈추는 신호: 처음으로·S(단계 신호)와 「건너뛰기」 버튼이 함께 쓴다
-  const local = new AbortController();
-  signal.addEventListener('abort', () => local.abort(), { once: true });
-  let current = null;
-  let skipped = false;
-  let timer = 0;
-  const finish = () => {
-    clearInterval(timer);
-    current?.pause();
-    skip.hidden = true;
-    footage.forEach((v) => v.pause());
-  };
-  const goDemo = () => {
-    if (screen !== 'story' || run !== r) return;
-    finish();
-    if (!r.booth) return renderStoryEnd();
-    renderDemo(r);
-  };
-  skip.addEventListener('click', () => {
-    skipped = true;
-    local.abort();
-    goDemo();
-  });
-  local.signal.addEventListener('abort', finish, { once: true });
-
-  // 줄마다 길이를 먼저 재고(전체 진행 막대와 장면 길이에 쓴다), 장면 사진·영상도 미리 받아 둔다(장면이 검게 비지 않게)
-  const images = Object.values(story.shots || {}).filter((s) => s.image).map((s) => new Promise((resolve) => {
-    const img = new Image();
-    img.onload = img.onerror = resolve;
-    img.src = s.image;
-    setTimeout(resolve, 4000);
-  }));
-  const clips = Object.entries(story.shots || {}).filter(([, s]) => s.video).map(([name, s]) => new Promise((resolve) => {
-    const v = shotBody(s);
-    v.autoplay = false;
-    v.preload = 'auto';
-    footage.set(name, v);
-    v.addEventListener('canplaythrough', resolve, { once: true });
-    v.addEventListener('error', resolve, { once: true });
-    setTimeout(resolve, 5000);
-    v.load();
-  }));
-  const [loaded] = await Promise.all([Promise.all(lines.map(loadLineAudio)), Promise.all(images), Promise.all(clips)]);
-  if (local.signal.aborted) return;
-  const total = loaded.reduce((s, x) => s + x.dur, 0) + (gapMs / 1000) * Math.max(0, lines.length - 1);
-  let base = 0;
-  const startedAt = performance.now();
-  timer = setInterval(() => {
-    const t = current && !current.paused ? base + current.currentTime : (performance.now() - startedAt) / 1000;
-    fill.style.width = `${Math.min(100, (Math.min(t, total) / total) * 100)}%`;
-    if (skip.hidden && (performance.now() - startedAt) / 1000 >= SKIP_AFTER_SEC && after.hidden) skip.hidden = false;
-  }, 100);
-
-  try {
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const { audio, dur } = loaded[i];
-      setShot(line.shot, (dur + gapMs / 1000) * 1000 + 900);
-      storyLine.textContent = line.say;
-      storyCc.hidden = false;
-      current = audio;
-      if (audio) {
-        audio.currentTime = 0;
-        const ended = once(audio, 'ended', local.signal);
-        try {
-          await audio.play();
-          await ended;
-        } catch (err) {
-          if (err instanceof Aborted) throw err;
-          await sleep(dur * 1000, local.signal);
-        }
-      } else await sleep(dur * 1000, local.signal);
-      base += dur + gapMs / 1000;
-      current = null;
-      if (i < lines.length - 1) await sleep(gapMs, local.signal);
-    }
-  } catch (err) {
-    finish();
-    if (!(err instanceof Aborted)) throw err;
-    if (r.ac.signal.aborted || skipped) return; // 처음으로 · 건너뛰기
-    return goDemo(); // S: 건너뛰기
-  }
-  finish();
-  if (screen !== 'story') return;
-  fill.style.width = '100%';
-  skip.hidden = true;
-  storyCc.hidden = true;
-  const again = h('button', { type: 'button', class: 'btn btn-lg' }, '다시 보기');
-  const next = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, '넘기기 →');
-  again.addEventListener('click', () => playStory(r).catch(ignoreAbort));
-  next.addEventListener('click', goDemo);
-  clear(after, h('div', { class: 'btn-row v-center' }, again, next));
-  after.hidden = false;
-  next.focus();
 }
 
 function renderStoryEnd() {
@@ -929,7 +759,7 @@ async function loadJson(url) {
   try {
     story = await loadJson(STORY + 'story.json');
   } catch {
-    story = { lines: [], shots: {} };
+    story = { video: STORY + 'story.mp4' };
   }
   try {
     data = await loadJson(DATA + 'visitor.json');

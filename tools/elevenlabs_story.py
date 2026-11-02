@@ -1,14 +1,16 @@
 """체험 「시온 STORY」 내레이션을 ElevenLabs 로 한꺼번에 만든다.
 
-src/experience/story/story.json 의 lines[].say 를 ElevenLabs 음성으로 읽어 story/<id>.mp3 로 저장한다.
+tools/story/script.json 의 lines[].say 를 ElevenLabs 음성으로 읽어 tools/story/voice/<id>.mp3 로 저장한다.
+kind 가 "ad" 인 줄(시온 AD 소리)은 건너뛴다. 그 소리는 체험 해설과 같은 음성이어야 해서 tools/story_tts.py 가 만든다.
 API 키와 목소리 ID 는 환경 변수로 준다(저장소에 넣지 않는다).
 
     set ELEVENLABS_API_KEY=...            (PowerShell: $env:ELEVENLABS_API_KEY="...")
     set ELEVENLABS_VOICE_ID=...           ElevenLabs Voice Library 에서 고른 목소리의 ID
     python tools/elevenlabs_story.py              # 전부
     python tools/elevenlabs_story.py n2 n4        # 고른 줄만
+    python tools/story_video.py                   # 그다음 영상을 다시 만든다
 
-웹에서 직접 만들 때는 story/README.md 의 표를 보고 같은 이름으로 저장하면 된다.
+웹에서 직접 만들 때는 tools/story/README.md 의 표를 보고 같은 이름으로 저장하면 된다.
 """
 import json
 import os
@@ -16,8 +18,9 @@ import sys
 import urllib.request
 from pathlib import Path
 
-STORY = Path(__file__).resolve().parent.parent / 'src' / 'experience' / 'story'
-MADE = STORY / '_made.json'
+HERE = Path(__file__).resolve().parent / 'story'
+VOICE = HERE / 'voice'
+MADE = VOICE / '_made.json'
 MODEL = os.environ.get('ELEVENLABS_MODEL', 'eleven_multilingual_v2')
 SETTINGS = {'stability': 0.55, 'similarity_boost': 0.8, 'style': 0.15, 'use_speaker_boost': True}
 
@@ -38,13 +41,14 @@ def main():
     voice_id = os.environ.get('ELEVENLABS_VOICE_ID')
     if not key or not voice_id:
         sys.exit('ELEVENLABS_API_KEY 와 ELEVENLABS_VOICE_ID 를 먼저 정해 주세요.')
-    data = json.loads((STORY / 'story.json').read_text(encoding='utf-8'))
+    data = json.loads((HERE / 'script.json').read_text(encoding='utf-8'))
+    VOICE.mkdir(exist_ok=True)
     only = set(sys.argv[1:])
     made = json.loads(MADE.read_text(encoding='utf-8')) if MADE.exists() else {}
     for line in data['lines']:
-        if only and line['id'] not in only:
+        if line.get('kind') == 'ad' or (only and line['id'] not in only):
             continue
-        speak(line['say'], voice_id, key, STORY / f"{line['id']}.mp3")
+        speak(line['say'], voice_id, key, VOICE / f"{line['id']}.mp3")
         made.pop(line['id'], None)  # 임시 음성 도구(story_tts.py)가 덮어쓰지 않게 표시를 지운다
         print('made', line['id'], line['say'])
     MADE.write_text(json.dumps(made, ensure_ascii=False, indent=1), encoding='utf-8')

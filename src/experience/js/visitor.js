@@ -351,7 +351,62 @@ function loadLineAudio(line) {
   return ready;
 }
 
+// 본선 제출 영상의 인트로(로고만 지금 것으로 바꾼 한 편의 영상)를 그대로 튼다. 내레이션·자막은 영상에 들어 있다.
+async function playIntro(r) {
+  const signal = stepSignal(r);
+  const film = h('video', { class: 'v-intro', src: story.intro.video, playsinline: true, preload: 'auto' });
+  const skip = h('button', { type: 'button', class: 'v-skip', hidden: true },
+    '건너뛰기', h('span', { 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24"><path d="M5 5v14l10-7z"/><path d="M17 5h2v14h-2z"/></svg>' }));
+  const fill = h('div');
+  const after = h('div', { class: 'v-after v-story-after', hidden: true });
+  view('story',
+    r.booth ? steps(MAIN_STEPS, 0) : null,
+    h('h1', { class: 'v-sr', tabindex: '-1' }, '시온 STORY'),
+    h('div', { class: 'v-film-wrap' }, h('div', { class: 'v-film' }, film, skip), h('div', { class: 'v-progress', 'aria-hidden': 'true' }, fill)));
+  app.append(after);
+  const goDemo = () => {
+    if (screen !== 'story' || run !== r) return;
+    film.pause();
+    if (!r.booth) return renderStoryEnd();
+    renderDemo(r);
+  };
+  const tick = setInterval(() => {
+    if (film.duration) fill.style.width = `${Math.min(100, (film.currentTime / film.duration) * 100)}%`;
+    if (skip.hidden && after.hidden && film.currentTime >= SKIP_AFTER_SEC) skip.hidden = false;
+  }, 100);
+  skip.addEventListener('click', () => {
+    clearInterval(tick);
+    goDemo();
+  });
+  signal.addEventListener('abort', () => {
+    clearInterval(tick);
+    film.pause();
+    if (!r.ac.signal.aborted) goDemo(); // S: 건너뛰기
+  }, { once: true });
+  film.addEventListener('ended', () => {
+    clearInterval(tick);
+    if (screen !== 'story' || run !== r) return;
+    fill.style.width = '100%';
+    skip.hidden = true;
+    const again = h('button', { type: 'button', class: 'btn btn-lg' }, '다시 보기');
+    const next = h('button', { type: 'button', class: 'btn btn-primary btn-lg' }, '넘기기 →');
+    again.addEventListener('click', () => playIntro(r).catch(ignoreAbort));
+    next.addEventListener('click', goDemo);
+    clear(after, h('div', { class: 'btn-row v-center' }, again, next));
+    after.hidden = false;
+    next.focus();
+  }, { once: true });
+  try {
+    await film.play();
+  } catch {
+    // 소리를 낼 수 없으면(자동 재생 막힘) 소리 없이라도 튼다
+    film.muted = true;
+    await film.play().catch(() => {});
+  }
+}
+
 async function playStory(r) {
+  if (story.intro?.video && story.use !== 'lines') return playIntro(r);
   const signal = stepSignal(r);
   const lines = story.lines || [];
   const gapMs = (story.gap ?? 0.3) * 1000;

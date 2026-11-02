@@ -22,9 +22,25 @@
 
 `voice/n1.mp3 … n7.mp3` 는 **임시 음성(Microsoft Edge)** 이에요. 내레이터는 여성(SunHi), 발표자 `n2` 는 남성(InJoon)이에요. ElevenLabs 음성으로 바꾸면 줄마다 길이를 재서 장면과 자막 시간을 다시 맞춰요. 따로 고칠 것은 없어요.
 
-**내레이터(6줄)와 발표자(1줄)를 서로 다른 목소리로 따로 만들어요.**
+ElevenLabs 목소리는 **내레이터 `JQaWvPoEUkcuOTfxFYpJ`, 발표자 `l6fNdLYgoqjfTIPUeFc9`** 예요(`script.json` 의 `elevenlabs`).
 
-### 1. 내레이터 — 한 파일로 받기 (ElevenLabs 대화창 · 무료 요금제)
+### API로 한꺼번에 (가장 간단)
+
+API 키를 한 번 정해 두면 두 목소리로 7줄을 한 번에 만들어요. 키는 저장소에 넣지 않아요.
+
+```bash
+setx ELEVENLABS_API_KEY 발급받은_키
+python tools/elevenlabs_story.py          # 고른 줄만: python tools/elevenlabs_story.py n2 n4
+python tools/story_video.py
+```
+
+ElevenLabs 가 거절하면(키·크레딧·요금제) 그 까닭을 띄우고 멈춰요. 라이브러리 목소리를 API 로 쓰는 데 유료 요금제가 필요하다고 나오면 아래처럼 대화창에서 만들어요.
+
+### 대화창에서 만들기
+
+**내레이터(6줄)와 발표자(1줄)를 따로 만들어요.**
+
+#### 1. 내레이터 — 한 파일로 받기
 
 아래를 그대로 붙여 넣고, 나온 파일 하나를 받아 다음처럼 넣어요. 줄 사이의 긴 쉼 5곳을 찾아 `n1, n3, n4, n5, n6, n7` 로 나눠 넣고 영상을 다시 만들어요.
 
@@ -35,7 +51,7 @@ python tools/story_video.py --voice 받은파일.mp3
 ```text
 한국어 내레이션 보이스오버를 하나 만들어 주세요.
 
-- 목소리: 30대 여성, 차분하고 따뜻한 다큐멘터리 내레이터. 또렷하게, 보통 빠르기로.
+- 목소리: [[voice_ref:JQaWvPoEUkcuOTfxFYpJ]] — 차분하고 따뜻한 다큐멘터리 내레이터처럼, 또렷하게, 보통 빠르기로.
 - 버전은 1개만 만들어 주세요.
 - 아래 대본을 순서대로 그대로 읽어 주세요. 문장을 고치거나 덧붙이지 마세요.
 - 줄과 줄 사이에서는 1초쯤 쉬고, 줄 안의 쉼표에서는 짧게만 쉬어 주세요.
@@ -58,33 +74,23 @@ python tools/story_video.py --voice 받은파일.mp3
 
 나눈 뒤에 "줄 사이 쉼과 문장 안 쉼의 길이가 비슷해요" 가 나오면 줄이 잘못 나뉘었을 수 있어요. 영상을 보고 자막과 소리가 어긋나면 줄마다 따로 받아요.
 
-### 2. 발표자 — 한 줄 (내레이터와 다른 목소리)
+#### 2. 발표자 — 한 줄
 
 받은 파일을 `tools/story/voice/n2.mp3` 로 넣어요.
 
 ```text
 한국어 보이스오버를 하나 만들어 주세요.
 
-- 목소리: 30~40대 남성, 회의에서 화면을 가리키며 발표하는 사람. 자신 있고 밝게, 말하듯 자연스럽게.
+- 목소리: [[voice_ref:l6fNdLYgoqjfTIPUeFc9]] — 회의에서 화면을 가리키며 발표하듯, 자신 있고 밝게, 말하듯 자연스럽게.
 - 버전은 1개만 만들어 주세요.
 - 아래 한 문장만 그대로 읽어 주세요. 앞뒤에 다른 말을 붙이지 마세요.
 
 여기가 중요한 부분입니다.
 ```
 
-### 줄마다 받기 (Text to Speech · API)
+### Text to Speech 에서 줄마다 받기
 
-ElevenLabs → Text to Speech, 모델은 **Eleven Multilingual v2**. 위 표의 문장(`script.json` 의 `say`)을 한 줄씩 넣어 만들고(`n2` 만 발표자 목소리), 파일 이름을 `n1.mp3` … `n7.mp3` 로 바꿔 `tools/story/voice/` 에 덮어써요. 그다음 `python tools/story_video.py`.
-
-API로 한꺼번에 만들 때:
-
-```bash
-set ELEVENLABS_API_KEY=발급받은_키
-set ELEVENLABS_VOICE_ID=내레이터_목소리_ID
-set ELEVENLABS_PRESENTER_VOICE_ID=발표자_목소리_ID
-python tools/elevenlabs_story.py          # 고른 줄만: python tools/elevenlabs_story.py n2 n4
-python tools/story_video.py
-```
+ElevenLabs → Text to Speech, 모델은 **Eleven Multilingual v2**. 위 목소리로 표의 문장(`script.json` 의 `say`)을 한 줄씩 넣어 만들고(`n2` 만 발표자 목소리), 파일 이름을 `n1.mp3` … `n7.mp3` 로 바꿔 `tools/story/voice/` 에 덮어써요. 그다음 `python tools/story_video.py`.
 
 ElevenLabs 로 넣은 파일(어느 방법이든)은 임시 음성 도구(`tools/story_tts.py`)가 덮어쓰지 않아요.
 

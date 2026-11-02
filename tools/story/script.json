@@ -3,11 +3,13 @@
   "voice": {
     "name": "ko-KR-SunHiNeural",
     "rate": "+0%",
-    "note": "내레이터. voice/n*.mp3 는 임시 음성(Edge)이다. ElevenLabs 로 만든 파일을 같은 이름으로 덮어쓰거나, 내레이터 줄 전체를 한 파일로 이어 읽은 것을 python tools/story_video.py --voice <파일> 로 나눠 넣으면 그 길이에 맞춰 영상이 다시 짜인다."
+    "elevenlabs": "JQaWvPoEUkcuOTfxFYpJ",
+    "note": "내레이터. elevenlabs 는 ElevenLabs 목소리 ID(tools/elevenlabs_story.py 가 쓴다). voice/n*.mp3 는 임시 음성(Edge)이다. ElevenLabs 로 만든 파일을 같은 이름으로 덮어쓰거나, 내레이터 줄 전체를 한 파일로 이어 읽은 것을 python tools/story_video.py --voice <파일> 로 나눠 넣으면 그 길이에 맞춰 영상이 다시 짜인다."
   },
   "presenter": {
     "name": "ko-KR-InJoonNeural",
     "rate": "+0%",
+    "elevenlabs": "l6fNdLYgoqjfTIPUeFc9",
     "note": "회의 발표자(내레이터와 다른 목소리). ElevenLabs 에서는 다른 목소리로 따로 만들어 voice/n2.mp3 로 넣는다."
   },
   "lines": [

@@ -1,14 +1,14 @@
-import { $, api, clear, h, toast } from '../common.js?v=a472df33';
-import * as analysis from './analysis.js?v=a472df33';
-import * as contents from './contents.js?v=a472df33';
-import * as dashboard from './dashboard.js?v=a472df33';
-import * as exportsView from './exports.js?v=a472df33';
-import * as media from './media.js?v=a472df33';
-import * as participants from './participants.js?v=a472df33';
-import * as quiz from './quiz.js?v=a472df33';
-import * as settings from './settings.js?v=a472df33';
-import { setUnauthorizedHandler } from './ui.js?v=a472df33';
-import { mountLogos } from '../logo.js?v=a472df33';
+import { $, api, clear, h, toast } from '../common.js?v=6b1cbb46';
+import * as analysis from './analysis.js?v=6b1cbb46';
+import * as contents from './contents.js?v=6b1cbb46';
+import * as dashboard from './dashboard.js?v=6b1cbb46';
+import * as exportsView from './exports.js?v=6b1cbb46';
+import * as media from './media.js?v=6b1cbb46';
+import * as participants from './participants.js?v=6b1cbb46';
+import * as quiz from './quiz.js?v=6b1cbb46';
+import * as settings from './settings.js?v=6b1cbb46';
+import { setUnauthorizedHandler } from './ui.js?v=6b1cbb46';
+import { mountLogos } from '../logo.js?v=6b1cbb46';
 
 mountLogos();
 

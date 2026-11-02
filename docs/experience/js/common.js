@@ -1,4 +1,4 @@
-import { staticApi } from './static-api.js?v=a472df33';
+import { staticApi } from './static-api.js?v=6b1cbb46';
 
 export class ApiError extends Error {
   constructor(status, data) {

@@ -426,8 +426,7 @@ function renderDemo(r) {
     h('div', { class: 'v-overlay-box' },
       h('h2', { id: 'v-demo-done' }, '방금 들으셨나요?'),
       h('p', null, ...storyText('발표자는 *“보시면 10.9, 9.3”*이라고만 말했습니다.'), h('br'),
-        ...storyText('{시온}은 *남성이 10.9, 여성이 9.3*이라고 알려 주었습니다.'), h('br'),
-        ...storyText('화면에만 있던 정보의 {빈자리}를, 시온이 {소리}로 채웠습니다.')),
+        ...storyText('{숫자의 의미}를 알 수 없었지만, {시온}은 그 {빈자리}를 채웠습니다.')),
       h('div', { class: 'btn-row v-center' }, next)));
   setBlind(false);
   bar.style.width = '0';

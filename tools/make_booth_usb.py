@@ -5,17 +5,20 @@
   booth.ps1 은 Windows PowerShell 5.1 의 HttpListener 로 Range 를 받는 로컬 서버를 켜고,
   Chrome(없으면 Edge) 키오스크로 experience/visitor.html 을 띄운다.
 - .bat 은 BOM 없는 UTF-8(cmd 가 BOM 을 못 읽는다), .ps1·.txt 는 BOM 있는 UTF-8(PowerShell 5.1·메모장용), 줄 끝은 CRLF 로 쓴다.
+- 구글 드라이브·메일로 보낼 때 쓰게 같은 내용을 <폴더>.zip 으로도 묶는다(zip 안에 폴더가 하나 들어 있다).
 - 사이트가 바깥 주소에서 무엇을 불러오는지 훑어 알린다(부스는 인터넷 없이 돌아야 한다).
 
     python build.py                      # docs/ 를 먼저 최신으로
-    python tools/make_booth_usb.py       # ../seeon-booth-usb/ 에 만든다
-    python tools/make_booth_usb.py --out E:/seeon-booth-usb
+    python tools/make_booth_usb.py       # ../seeon-booth-usb/ 와 ../seeon-booth-usb.zip 을 만든다
+    python tools/make_booth_usb.py --out E:/seeon-booth-usb --no-zip
 """
 import argparse
+import os
 import re
 import shutil
 import subprocess
 import sys
+import zipfile
 from datetime import date
 from pathlib import Path
 
@@ -25,6 +28,7 @@ TEMPLATE = Path(__file__).resolve().parent / 'booth_usb'
 DEFAULT_OUT = ROOT.parent / 'seeon-booth-usb'
 PAGE = 'experience/visitor.html'
 MARK = 'server/booth.ps1'  # 이 파일이 있으면 이 스크립트가 만든 폴더로 보고 덮어쓴다
+PACKED = {'.mp4', '.mp3', '.jpg', '.jpeg', '.png', '.webp', '.gif', '.woff', '.woff2', '.zip'}  # 이미 눌린 파일은 zip 에 그대로 담는다
 
 # 페이지가 바깥 주소에서 무언가를 불러오는 꼴. <a href> 같은 링크는 누르지 않으면 불러오지 않으니 뺀다.
 EXTERNAL = [
@@ -69,11 +73,26 @@ def size_mb(folder):
     return sum(p.stat().st_size for p in folder.rglob('*') if p.is_file()) / 1e6
 
 
+def write_zip(out, items, dst):
+    # 이름은 UTF-8 표시를 달아 담아서(zipfile 이 한글 이름에 알아서 단다) Windows 의 [모두 압축 풀기] 에서도 한글이 안 깨진다.
+    files = sorted({p for item in items for p in ([item] if item.is_file() else item.rglob('*')) if p.is_file()})
+    tmp = dst.with_name(dst.name + '.part')
+    with zipfile.ZipFile(tmp, 'w') as z:
+        for p in files:
+            packed = p.suffix.lower() in PACKED
+            z.write(p, f'{out.name}/{p.relative_to(out).as_posix()}',
+                    compress_type=zipfile.ZIP_STORED if packed else zipfile.ZIP_DEFLATED)
+    os.replace(tmp, dst)
+
+
 def main():
+    sys.stdout.reconfigure(errors='replace')  # 한국어 Windows 콘솔(cp949)에 없는 글자(—)에서 멈추지 않게
     ap = argparse.ArgumentParser(description='부스 노트북용 USB 폴더를 만든다.')
     ap.add_argument('--out', type=Path, default=DEFAULT_OUT, help=f'만들 폴더 (기본 {DEFAULT_OUT})')
+    ap.add_argument('--no-zip', action='store_true', help='드라이브·메일용 zip 은 만들지 않는다')
     args = ap.parse_args()
     out = args.out.resolve()
+    zip_path = out.with_name(out.name + '.zip')
 
     if not (DOCS / PAGE).exists():
         sys.exit(f'{DOCS / PAGE} 가 없어요. 먼저 python build.py 를 돌리세요.')
@@ -102,6 +121,9 @@ def main():
     for t in templates:
         print(f'  {t.relative_to(TEMPLATE).as_posix()}')
     print(f'  site/  ← docs/ ({size_mb(out / "site"):.1f} MB)')
+    if not args.no_zip:
+        write_zip(out, [out / 'site', out / 'server'] + [out / t.relative_to(TEMPLATE) for t in templates], zip_path)
+        print(f'{zip_path}  ({zip_path.stat().st_size / 1e6:.1f} MB, 드라이브·메일용)')
 
     loads = external_loads(out / 'site')
     if loads:

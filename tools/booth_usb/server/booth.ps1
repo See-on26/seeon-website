@@ -282,6 +282,10 @@ $Worker = {
 }
 
 # ---------- 시작 ----------
+# 드라이브·메일로 받은 zip 을 풀면 파일마다 '인터넷에서 받은 파일' 표시가 붙어, .bat 을 누를 때마다(자동 시작 때도) 보안 경고가 뜬다.
+# 처음 한 번 [실행] 을 누르면 여기서 이 폴더의 표시를 지워 다음부터는 뜨지 않게 한다.
+try { Get-ChildItem -LiteralPath $Top -Recurse -File -Force | Unblock-File -ErrorAction SilentlyContinue } catch { }
+
 if ($Startup) { Set-Startup $Startup; exit 0 }
 if ($Stop) {
   Stop-Kiosk

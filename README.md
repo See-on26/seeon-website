@@ -136,6 +136,7 @@ GitHub Pages에는 평가 서버(Node·데이터베이스)가 없어서, 서버�
 - `server/booth.ps1` 은 Windows PowerShell 5.1 의 HttpListener 로 `site/` 를 `http://localhost:8090/` 에 내보내요. Range(206)를 받고 `?v=` 는 무시해요. 8090 이 쓰이고 있으면 8099 까지 빈 포트를 찾아요. 켜져 있는 동안 화면·절전이 꺼지지 않게 붙잡아 둬요.
 - 화면은 Chrome(없으면 Edge `--edge-kiosk-type=fullscreen`) 키오스크로, `%LOCALAPPDATA%\SeeonBooth` 의 따로 된 프로필로 띄워요. `끝내기.bat` 은 그 프로필의 브라우저와 서버만 꺼요.
 - `자동 시작 켜기.bat`/`끄기.bat` 은 시작 프로그램 폴더에 `시작.bat` 바로 가기를 두거나 지워요. 직원용 안내는 `사용법.txt` 에 있어요.
+- 같은 내용을 `seeon-booth-usb.zip` 으로도 묶어요(구글 드라이브·메일용, `--no-zip` 으로 끔). 내려받은 zip 을 풀면 Windows 가 파일마다 '인터넷에서 받은 파일' 표시를 달아 `.bat` 을 누를 때마다 보안 경고가 떠요. `booth.ps1` 이 처음 켜질 때 폴더의 표시를 지워서 다음부터는(자동 시작 때도) 뜨지 않아요. zip 을 연 채로 `.bat` 을 누르면 압축부터 풀라고 알려 줘요.
 - 만들 때 사이트가 바깥 주소에서 불러오는 것(글꼴·CDN·이미지)이 있는지 훑어 알려 줘요.
 
 ## 내용의 기준

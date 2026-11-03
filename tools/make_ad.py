@@ -3,6 +3,7 @@
 - 목소리는 visitor.json 의 voice.ad / voice.rate (Microsoft Edge 신경망 음성, edge-tts).
 - 문장이나 목소리가 바뀐 줄만 다시 만든다(ad/_made.json 에 무엇으로 만들었는지 적어 둔다).
 - 다른 TTS 로 바꾸려면 synthesize() 만 바꾸면 된다.
+- 만든 파일은 발표 영상과 같은 소리 크기로 맞춘다(level_audio.py).
 
     pip install edge-tts
     python tools/make_ad.py          # 바뀐 것만
@@ -14,6 +15,8 @@ import sys
 from pathlib import Path
 
 import edge_tts
+
+from level_audio import level
 
 ROOT = Path(__file__).resolve().parent.parent / 'src' / 'experience' / 'data' / 'visitor'
 OUT = ROOT / 'ad'
@@ -39,6 +42,7 @@ async def main(redo_all):
         if made.get(ad_id) == key and path.exists():
             continue
         await synthesize(text, voice, rate, path)
+        level(path)
         made[ad_id] = key
         print('made', ad_id, text)
     for stale in set(made) - set(wanted):

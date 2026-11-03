@@ -15,14 +15,14 @@
     "salt": {
       "title": "일본의 소금 섭취량",
       "source": "효과영상 01 '값' 의미 맞추기 (공유화면 편집본)",
-      "video": "clips/salt.mp4?v=c84f9554",
+      "video": "clips/salt.mp4?v=ea0564e0",
       "ad": [
         {
           "id": "salt-1",
           "at": 14.15,
           "mode": "pause",
           "text": "남성 10.9, 여성 9.3.",
-          "v": "1d42159c"
+          "v": "656c02af"
         }
       ],
       "subs": [
@@ -66,21 +66,21 @@
     "ramen": {
       "title": "라면과 혈당",
       "source": "혈당연구소 e5xK7n7Of5M 3:31–4:35 (공유화면 편집본)",
-      "video": "clips/ramen.mp4?v=63f9fed7",
+      "video": "clips/ramen.mp4?v=5963701b",
       "ad": [
         {
           "id": "ramen-1",
           "at": 14.2,
           "mode": "pause",
           "text": "라면만 먹었을 때 최고 혈당 226.",
-          "v": "06e58c2f"
+          "v": "d96e5ce4"
         },
         {
           "id": "ramen-2",
           "at": 19.7,
           "mode": "pause",
           "text": "계란과 채소를 먼저 먹었을 땐 최고 187.",
-          "v": "dea7423c"
+          "v": "08ff0a03"
         }
       ],
       "subs": [
@@ -139,28 +139,28 @@
     "aircon": {
       "title": "에어컨 전기료",
       "source": "SBS 친절한 경제 qKBQv1qPIs0 1:45–2:50 (공유화면 편집본)",
-      "video": "clips/aircon.mp4?v=84f3805b",
+      "video": "clips/aircon.mp4?v=cee8e4db",
       "ad": [
         {
           "id": "aircon-1",
           "at": 13.7,
           "mode": "pause",
           "text": "붉은 선 그래프 두 개. 왼쪽 실내 온도, 오른쪽 소비전력.",
-          "v": "c883f0ba"
+          "v": "91724ecf"
         },
         {
           "id": "aircon-2",
           "at": 26.15,
           "mode": "pause",
           "text": "켜자마자 소비전력 3,000와트. 실내 온도 32도에서 26도로.",
-          "v": "44fa4b84"
+          "v": "71ba2e29"
         },
         {
           "id": "aircon-3",
           "at": 35.3,
           "mode": "pause",
           "text": "이후 500와트 안팎 유지.",
-          "v": "3556fb31"
+          "v": "bb0d930b"
         }
       ],
       "subs": [
@@ -224,7 +224,7 @@
     "dino": {
       "title": "공룡의 크기",
       "source": "과학드림 7SrWIZVhN2Q 0:48–1:32 (공유화면 편집본)",
-      "video": "clips/dino.mp4?v=d899790f",
+      "video": "clips/dino.mp4?v=f959b55f",
       "ad": [
         {
           "id": "dino-1",
@@ -238,7 +238,7 @@
           "at": 24.64,
           "mode": "pause",
           "text": "다리뼈 화석, 옆에 선 아이 키의 네 배쯤.",
-          "v": "e2b2106e"
+          "v": "a22a4d99"
         }
       ],
       "subs": [
@@ -312,14 +312,14 @@
     "cards": {
       "title": "카드 네 장",
       "source": "효과영상 09 카드 맞추기 (사람 제거·라벨 제거, 공유화면 편집본)",
-      "video": "clips/cards.mp4?v=e103acda",
+      "video": "clips/cards.mp4?v=37d87c4f",
       "ad": [
         {
           "id": "cards-1",
           "at": 20.5,
           "mode": "duck",
           "text": "카드 네 장: A, 3, J, 4.",
-          "v": "a6736c12"
+          "v": "d7eb86a3"
         }
       ],
       "subs": [
@@ -363,14 +363,14 @@
     "pancake": {
       "title": "개존맛 해물부침개",
       "source": "효과영상 05 개존맛 해물부침개 (사람 제거본)",
-      "video": "clips/pancake.mp4?v=eb9feb23",
+      "video": "clips/pancake.mp4?v=fbb34189",
       "ad": [
         {
           "id": "pancake-1",
           "at": 9.6,
           "mode": "pause",
           "text": "안내판에 한국말로 '개존맛 해물부침개'.",
-          "v": "6a22a467"
+          "v": "90eecba8"
         }
       ],
       "subs": [
@@ -409,14 +409,14 @@
     "jelly": {
       "title": "사장님 최애 간식",
       "source": "효과영상 04 간식은 젤리 (사람 제거본)",
-      "video": "clips/jelly.mp4?v=27681cef",
+      "video": "clips/jelly.mp4?v=e288655e",
       "ad": [
         {
           "id": "jelly-1",
           "at": 19.4,
           "mode": "pause",
           "text": "화면: 사장님 최애 간식, 젤리. 왕꿈틀이 봉지.",
-          "v": "51efe628"
+          "v": "1e21cae5"
         }
       ],
       "subs": [

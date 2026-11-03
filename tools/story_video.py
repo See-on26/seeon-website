@@ -19,7 +19,6 @@ import argparse
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import wave
@@ -27,6 +26,8 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+from level_audio import audio_filter, ffmpeg_exe, measure as loudness
 
 ROOT = Path(__file__).resolve().parent.parent
 HERE = ROOT / 'tools' / 'story'
@@ -45,16 +46,6 @@ MAX_TEMPO = 1.06  # 30초를 넘을 때 말을 이만큼까지 빠르게 한다(
 LEAD = 0.6  # 첫 줄 앞
 QUOTE_SCALE = 1.15  # 손글씨 인용(1080p 에서 오린 780px)을 이만큼 키워 가운데에 띄운다
 MUSIC = 'safe_future_intro_30s.mp3'
-
-
-def ffmpeg_exe():
-    if os.environ.get('SEEON_FFMPEG'):  # Windows 는 환경 변수 이름의 대소문자를 가리지 않아 FFMPEG 는 다른 것과 겹친다
-        return os.environ['SEEON_FFMPEG']
-    try:
-        import imageio_ffmpeg
-        return imageio_ffmpeg.get_ffmpeg_exe()
-    except ImportError:
-        return shutil.which('ffmpeg') or sys.exit('ffmpeg 를 찾지 못했어요. SEEON_FFMPEG 환경 변수로 경로를 알려 주세요.')
 
 
 FF = ffmpeg_exe()
@@ -602,10 +593,11 @@ def main():
         w.setsampwidth(2)
         w.setframerate(SR)
         w.writeframes((np.clip(mix, -1, 1) * 32767).astype(np.int16).tobytes())
+    af = audio_filter(*loudness(wav))  # 체험의 다른 영상·해설과 같은 소리 크기로(내레이션·음악 비율은 그대로)
     n = int(round(total * FPS))
     enc = subprocess.Popen([FF, '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS),
                             '-i', '-', '-i', str(wav), '-c:v', 'libx264', '-preset', 'slow', '-crf', '23', '-pix_fmt', 'yuv420p',
-                            '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', '-shortest', str(out)], stdin=subprocess.PIPE)
+                            '-c:a', 'aac', '-b:a', '128k', '-af', af, '-movflags', '+faststart', '-shortest', str(out)], stdin=subprocess.PIPE)
     for i in range(n):
         t = i / FPS
         c = render(t, bg, over)

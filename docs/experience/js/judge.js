@@ -1,12 +1,11 @@
 // 심사위원 시연: 사례 3개 × 동시·교차(균형) 모드 = 영상 6개 중 하나를 골라 본다.
 // 고르는 화면(judge.html)과 재생 화면(judge.html#a-sync)을 주소의 # 로 오간다.
-import { clear, h } from './common.js?v=691eea33';
-import { startScene, startWaves } from './fx.js?v=691eea33';
-import { mountLogos } from './logo.js?v=691eea33';
+import { clear, h } from './common.js?v=6aa9959f';
+import { startScene, startWaves } from './fx.js?v=6aa9959f';
+import { mountLogos } from './logo.js?v=6aa9959f';
 
 const DATA = 'data/judge/';
 const MODES = { sync: '동시 모드', cross: '교차 모드' };
-const MODE_KEYS = { sync: 'SYNC', cross: 'CROSS' };
 
 const $ = (id) => document.getElementById(id);
 const menu = $('menu');
@@ -58,7 +57,6 @@ function renderMenu(cases) {
       const len = h('span', { class: 'j-len' }, length(info.seconds));
       const link = h('a', { class: 'j-mode', href: `#${id}`, 'aria-label': `${kase.label} ${name} 영상 보기, ${adCount(info)}, ${length(info.seconds)}` },
         h('span', { class: 'j-mode-ico' }, playIcon()),
-        h('span', { class: 'j-mode-k', lang: 'en', 'aria-hidden': 'true' }, MODE_KEYS[mode]),
         h('span', { class: 'j-mode-name' }, name),
         len,
         h('span', { class: 'j-mode-meta' }, adCount(info)));

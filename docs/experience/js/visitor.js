@@ -1,7 +1,7 @@
-import { $, clear, h } from './common.js?v=691eea33';
-import { startScene, startWaves, storage } from './fx.js?v=691eea33';
-import { markSvg, mountLogos } from './logo.js?v=691eea33';
-import { requestFullscreen } from './player.js?v=691eea33';
+import { $, clear, h } from './common.js?v=6aa9959f';
+import { startScene, startWaves, storage } from './fx.js?v=6aa9959f';
+import { markSvg, mountLogos } from './logo.js?v=6aa9959f';
+import { requestFullscreen } from './player.js?v=6aa9959f';
 
 // 일반객 체험 (부스)
 // 시작 → 1단계(시온 STORY 영상 → SEEON 들어보기) → 2단계(퀴즈: 말에 화면 정보가 담겼는지 맞히기 5문제 또는 화면 없이 듣고 맞히기 1문제) → 완료(STAFF 안내)

@@ -6,7 +6,6 @@ import { mountLogos } from './logo.js';
 
 const DATA = 'data/judge/';
 const MODES = { sync: '동시 모드', cross: '교차 모드' };
-const MODE_KEYS = { sync: 'SYNC', cross: 'CROSS' };
 
 const $ = (id) => document.getElementById(id);
 const menu = $('menu');
@@ -58,7 +57,6 @@ function renderMenu(cases) {
       const len = h('span', { class: 'j-len' }, length(info.seconds));
       const link = h('a', { class: 'j-mode', href: `#${id}`, 'aria-label': `${kase.label} ${name} 영상 보기, ${adCount(info)}, ${length(info.seconds)}` },
         h('span', { class: 'j-mode-ico' }, playIcon()),
-        h('span', { class: 'j-mode-k', lang: 'en', 'aria-hidden': 'true' }, MODE_KEYS[mode]),
         h('span', { class: 'j-mode-name' }, name),
         len,
         h('span', { class: 'j-mode-meta' }, adCount(info)));

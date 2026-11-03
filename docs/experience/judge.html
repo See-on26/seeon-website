@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#03060c">
+  <title>SEEON 심사위원 시연</title>
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/PretendardVariable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/app.css?v=691eea33">
+  <link rel="stylesheet" href="css/fx.css?v=691eea33">
+  <link rel="stylesheet" href="css/judge.css?v=691eea33">
+</head>
+<body class="theme-dark quiz-page judge-page">
+  <div class="backdrop" id="backdrop" aria-hidden="true">
+    <div class="scene">
+      <img class="shot is-on" data-shot="listen" src="../images/listen.jpg" alt="" decoding="async">
+    </div>
+    <div class="veil"></div>
+    <div class="scrim"></div>
+    <canvas id="waves"></canvas>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="brand" href="index.html" data-logo="심사위원 시연" aria-label="SEEON 체험 첫 화면"></a>
+    </div>
+    <span class="mono topbar-meta" id="j-meta">EXPERIENCE WITH HEADPHONES</span>
+    <button type="button" class="home-btn j-back" id="p-back" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6 4 12l6 6"/><path d="M4 12h16"/></svg>
+      돌아가기
+    </button>
+  </header>
+
+  <!-- 고르는 화면: 사례마다 한 줄. 왼쪽에 사례 설명, 오른쪽에 동시·교차 모드 버튼 -->
+  <main class="page j-menu" id="menu">
+    <div class="card hud-card j-card">
+      <span class="corners" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <p class="eyebrow-mono" lang="en">SEEON SCENARIO</p>
+      <div class="j-head">
+        <h1 class="page-title">사례와 듣는 방식을 골라 주세요</h1>
+        <p class="j-count">시연 영상 6종 <i aria-hidden="true">·</i> 사례 3개 <i aria-hidden="true">×</i> 동시 / 교차(균형) 모드</p>
+      </div>
+      <div class="j-cases" id="cases"></div>
+      <div class="j-legend">
+        <p><span><b>동시 모드</b>회의 소리를 줄이고 그 위에 바로 해설</span><span><b>교차(균형) 모드</b>문장 끝에서 회의를 잠깐 멈추고 해설</span></p>
+        <p><span><b>자동 AD</b>시온이 화면을 보고 스스로 넣은 해설</span><span><b>수동 AD</b>참석자가 입력한 질문에 대한 답변</span></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- 재생 화면: 버튼을 누르면 뜬다. 오른쪽 위 돌아가기로 고르는 화면에 돌아간다 -->
+  <main class="page j-player" id="player" aria-labelledby="p-title" hidden>
+    <div class="j-p-head">
+      <p class="j-p-kicker"><span class="j-chip" id="p-case"></span><b id="p-mode"></b><span id="p-meta"></span></p>
+      <h1 class="page-title j-p-title" id="p-title" tabindex="-1"></h1>
+    </div>
+    <div class="j-stage">
+      <div class="j-frame">
+        <div class="j-screen" id="p-screen">
+          <video id="p-video" playsinline preload="auto"></video>
+          <div class="j-spin" aria-hidden="true"></div>
+          <button type="button" class="j-big" id="p-big" aria-label="재생">
+            <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+            <svg class="i-replay" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+          </button>
+          <div class="j-missing" id="p-missing" hidden>
+            <p>영상이 아직 들어 있지 않습니다.</p>
+            <p class="j-missing-path" id="p-missing-path"></p>
+          </div>
+        </div>
+        <div class="j-controls">
+          <div class="j-seek" id="p-seekbox">
+            <input type="range" id="p-seek" min="0" max="1" step="any" value="0" aria-label="재생 위치">
+            <span class="j-tip" id="p-tip" aria-hidden="true">0:00</span>
+          </div>
+          <div class="j-bar">
+            <button type="button" class="j-toggle" id="p-toggle" aria-label="재생">
+              <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+              <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+              <svg class="i-replay" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
+            </button>
+            <span class="j-time num"><span id="p-cur">0:00</span> <i>/</i> <span id="p-dur">0:00</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="js/judge.js?v=691eea33"></script>
+</body>
+</html>

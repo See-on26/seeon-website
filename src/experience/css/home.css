@@ -29,7 +29,8 @@ body.home :focus-visible { outline-color: var(--h-blue-2); }
 .home-logo .seeon-mark { height: 34px; color: var(--h-blue); }
 .home-logo .seeon-word { height: 15px; }
 .hud-meta { color: var(--h-muted); font-size: 12px; letter-spacing: 0.18em; }
-/* 관리자는 오른쪽 위의 작은 버튼으로 */
+/* 심사위원 시연·관리자는 오른쪽 위의 작은 버튼으로 */
+.hud-links { justify-self: end; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .admin-link {
   justify-self: end; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px;
   color: var(--h-ink-2); text-decoration: none; font-size: 14px; font-weight: 600;

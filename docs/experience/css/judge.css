@@ -1,0 +1,193 @@
+/* 심사위원 시연: 일반객 체험과 같은 어두운 사진 배경 위의 유리 카드. 사례 3줄 × 동시·교차 모드 버튼, 누르면 가운데 큰 재생기 */
+/* 부스 노트북(15.6·17인치) 전체 화면, 곧 CSS 픽셀 1280×720 ~ 1536×864 에서 아래로 내리지 않고 한 화면에 다 보이게 크기를 화면 높이(vh)에 맞춘다 */
+.judge-page { display: flex; flex-direction: column; }
+.judge-page .topbar { width: 100%; }
+.judge-page .page { width: 100%; max-width: min(1400px, 100%); padding-top: 4px; padding-bottom: clamp(14px, 3vh, 28px); padding-inline: clamp(16px, 2.5vw, 36px); }
+@media (max-height: 780px) { .judge-page .topbar { padding-block: 12px; } }
+.j-back { min-height: 42px; padding: 0 18px 0 14px; font-size: 15px; }
+.j-back svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.j-back:hover, .j-back:focus-visible { border-color: rgb(90 169 255 / 0.6); }
+
+/* ---------- 고르는 화면 ---------- */
+.j-card { padding: clamp(16px, 3vh, 30px) clamp(18px, 2.4vw, 34px) clamp(12px, 2.2vh, 24px); }
+.j-card .eyebrow-mono { margin-bottom: clamp(6px, 1.2vh, 12px); }
+.j-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; }
+.judge-page .j-head .page-title { margin: 0; font-size: clamp(26px, 4.6vh, 42px); }
+.j-count {
+  display: inline-block; margin: 0; padding: 7px 14px; border-radius: 999px;
+  background: rgb(0 103 242 / 0.18); border: 1px solid rgb(90 169 255 / 0.35); color: #fff; font-size: clamp(13px, 1.9vh, 15px); font-weight: 650;
+}
+.j-count i { font-style: normal; color: #9cc8ff; padding: 0 0.4em; }
+
+.j-cases { margin-top: clamp(8px, 1.8vh, 18px); }
+.j-case {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: clamp(14px, 2vw, 30px);
+  padding: clamp(10px, 1.9vh, 18px) 0; border-top: 1px solid var(--line);
+}
+.j-case:last-child { border-bottom: 1px solid var(--line); }
+.j-thumb {
+  display: block; width: clamp(150px, 26vh, 280px); height: auto; aspect-ratio: 546 / 305; object-fit: cover;
+  border-radius: 6px; border: 1px solid rgb(255 255 255 / 0.14); background: #fafaf7;
+}
+.j-case-text { display: grid; gap: clamp(4px, 0.9vh, 10px); min-width: 0; }
+.j-case-h { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0; font-size: clamp(19px, 3.2vh, 28px); font-weight: 780; line-height: 1.3; }
+.j-chip {
+  flex: none; padding: 2px 11px; border-radius: 999px; font-size: clamp(12px, 1.8vh, 14px); font-weight: 700; line-height: 1.6;
+  color: #9cc8ff; background: rgb(0 103 242 / 0.2); border: 1px solid rgb(90 169 255 / 0.4);
+}
+.j-quote {
+  margin: 0; padding: 1px 0 1px 12px; border-left: 3px solid rgb(255 255 255 / 0.22);
+  color: var(--ink-2); font-size: clamp(15px, 2.3vh, 19px); line-height: 1.55;
+}
+
+/* 동시 | 교차 버튼: 일반객 첫 화면의 파란 단계 타일과 같은 꼴. 모드 · 길이 / 자동·수동 AD 수 */
+.j-modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(8px, 1vw, 14px); }
+.j-mode {
+  display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto auto; column-gap: 12px; align-items: center;
+  width: clamp(200px, 18.5vw, 270px); min-height: clamp(76px, 12.5vh, 112px); padding: clamp(10px, 1.5vh, 16px) clamp(14px, 1.3vw, 18px);
+  border-radius: 8px; border: 1px solid rgb(90 169 255 / 0.3); color: var(--ink); text-decoration: none; cursor: pointer;
+  background: linear-gradient(180deg, rgb(0 103 242 / 0.3), rgb(0 103 242 / 0.16));
+  transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.j-mode-ico {
+  grid-row: 1 / -1; display: grid; place-items: center; width: clamp(36px, 5.6vh, 46px); aspect-ratio: 1; border-radius: 50%;
+  background: #0067f2; color: #fff; box-shadow: 0 6px 18px rgb(0 103 242 / 0.35); transition: background 0.2s, color 0.2s;
+}
+.j-mode-ico svg { width: 42%; height: 42%; margin-left: 8%; fill: currentColor; }
+.j-mode-k { grid-column: 2 / -1; font-family: var(--mono); color: #9cc8ff; font-size: 11px; font-weight: 500; letter-spacing: 0.18em; line-height: 1.5; }
+.j-mode-name { font-size: clamp(17px, 2.7vh, 22px); font-weight: 780; line-height: 1.3; white-space: nowrap; }
+.j-len { color: #fff; font-size: clamp(15px, 2.4vh, 20px); font-weight: 780; line-height: 1.3; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.j-mode-meta { grid-column: 2 / -1; color: var(--ink-2); font-size: clamp(12px, 1.8vh, 14px); line-height: 1.45; white-space: nowrap; }
+.j-mode:hover, .j-mode:focus-visible {
+  background: linear-gradient(180deg, #1a7bff, #0067f2); border-color: #5aa9ff; transform: translateY(-3px); box-shadow: 0 10px 30px rgb(0 103 242 / 0.35);
+}
+.j-mode:hover .j-mode-ico, .j-mode:focus-visible .j-mode-ico { background: #fff; color: #0067f2; }
+.j-mode:hover .j-mode-k, .j-mode:focus-visible .j-mode-k, .j-mode:hover .j-mode-meta, .j-mode:focus-visible .j-mode-meta { color: #fff; }
+/* 영상 파일이 아직 없을 때 */
+.j-mode.is-missing { cursor: not-allowed; background: rgb(255 255 255 / 0.03); border-style: dashed; border-color: var(--line-2); transform: none; box-shadow: none; }
+.j-mode.is-missing .j-mode-ico { background: rgb(255 255 255 / 0.12); color: var(--muted); box-shadow: none; }
+.j-mode.is-missing .j-mode-k, .j-mode.is-missing .j-mode-name, .j-mode.is-missing .j-mode-meta { color: var(--muted); }
+.j-mode.is-missing .j-len { color: var(--muted); font-size: clamp(12px, 1.8vh, 14px); font-weight: 600; }
+
+.j-legend { margin-top: clamp(8px, 1.6vh, 16px); color: var(--muted); font-size: clamp(12px, 1.8vh, 14px); line-height: 1.7; }
+.j-legend { display: grid; grid-template-columns: repeat(2, max-content); column-gap: clamp(24px, 3vw, 48px); }
+.j-legend p { display: contents; }
+.j-legend b { color: var(--ink); font-weight: 700; margin-right: 0.5em; }
+.j-error { margin: 20px 0; color: var(--ink-2); }
+
+/* 좁은 화면(휴대폰 등)에서는 사진·설명 아래로 버튼을 내린다 */
+@media (max-width: 960px) {
+  .j-case { grid-template-columns: auto minmax(0, 1fr); }
+  .j-modes { grid-column: 1 / -1; }
+  .j-mode { width: auto; }
+}
+@media (max-width: 760px) { .j-legend { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) {
+  .j-case { grid-template-columns: minmax(0, 1fr); }
+  .j-thumb { width: 100%; }
+  .j-modes { grid-template-columns: minmax(0, 1fr); }
+  .judge-page .topbar-meta { display: none; }
+}
+
+/* ---------- 재생 화면 ---------- */
+.judge-page.in-player { overflow: hidden; height: 100svh; }
+/* 재생 중에는 아래쪽 파형이 재생 위치 바 뒤에 겹쳐 보이지 않게 거둔다 */
+.judge-page #waves { transition: opacity 0.4s; }
+.judge-page.in-player #waves { opacity: 0; }
+.j-player { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+.j-player[hidden] { display: none; }
+.j-p-head { margin-bottom: clamp(8px, 1.6vh, 16px); }
+.j-p-kicker { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 0 0 6px; color: var(--ink-2); font-size: clamp(13px, 1.9vh, 15px); }
+.j-p-kicker b { color: #fff; font-size: clamp(14px, 2.1vh, 17px); font-weight: 750; }
+.judge-page .j-p-title { margin: 0; font-size: clamp(22px, 3.6vh, 32px); }
+
+/* 영상 + 아래 조절 막대를 남은 칸에 16:9 로 맞춘다 */
+.j-stage { flex: 1 1 0; min-height: 200px; container-type: size; display: grid; justify-items: center; align-content: start; }
+.j-frame { --ctrl: 62px; width: min(100cqw, (100cqh - var(--ctrl)) * 16 / 9); }
+.j-screen {
+  position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: pointer;
+  background: #000; border-radius: 10px; border: 1px solid rgb(255 255 255 / 0.12);
+}
+.j-screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
+.j-screen::after { content: ''; position: absolute; inset: 0; background: rgb(0 0 0 / 0.45); opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+.j-player.is-ended .j-screen::after { opacity: 1; }
+
+/* 가운데 큰 기호: 멈춰 있으면 재생 ▶, 끝나면 다시 재생 ↻ (글 없이 기호만). 체험의 「다시 보기」처럼 어두운 바탕 + 흰 테 */
+.j-big {
+  position: absolute; left: 50%; top: 50%; z-index: 2; translate: -50% -50%;
+  display: grid; place-items: center; width: clamp(72px, 12vh, 108px); aspect-ratio: 1; padding: 0;
+  border: 2px solid #fff; border-radius: 50%; background: rgb(8 12 20 / 0.72); color: #fff; cursor: pointer;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.4); transition: background 0.18s, border-color 0.18s, scale 0.18s, opacity 0.2s;
+}
+.j-big svg { grid-area: 1 / 1; width: 44%; height: 44%; }
+.j-big .i-play { fill: currentColor; margin-left: 8%; }
+.j-big .i-replay { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.j-big:hover, .j-big:focus-visible { background: #0067f2; border-color: #0067f2; scale: 1.06; }
+.j-player .j-big .i-replay, .j-player.is-ended .j-big .i-play { display: none; }
+.j-player.is-ended .j-big .i-replay { display: block; }
+/* 중간에 멈췄을 때는 화면을 가리지 않게 숨기고 아래 단추로만 다시 튼다(유튜브처럼) */
+.j-player:not(.is-fresh):not(.is-ended) .j-big, .j-player.is-missing .j-big { opacity: 0; pointer-events: none; }
+
+.j-spin {
+  position: absolute; left: 50%; top: 50%; z-index: 1; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%;
+  border: 4px solid rgb(255 255 255 / 0.2); border-top-color: #fff; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+  animation: j-spin 0.9s linear infinite;
+}
+.j-player.is-waiting.is-playing .j-spin { opacity: 1; transition-delay: 0.3s; }
+@keyframes j-spin { to { transform: rotate(1turn); } }
+
+.j-missing { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; gap: 8px; padding: 20px; text-align: center; background: radial-gradient(ellipse at center, #0a1224, #020409 70%); cursor: default; }
+.j-missing[hidden] { display: none; }
+.j-missing p { margin: 0; color: var(--ink-2); font-size: clamp(17px, 2.6vh, 22px); font-weight: 650; }
+.j-missing .j-missing-path { color: var(--muted); font-family: var(--mono); font-size: 14px; font-weight: 400; }
+
+/* 조절 막대: 재생 위치 바 + 재생/멈춤·시간 */
+.j-controls { height: var(--ctrl); display: grid; grid-template-rows: 24px 1fr; padding-top: 6px; }
+.j-seek { position: relative; display: grid; align-items: center; }
+.j-seek input {
+  --played: 0%; --loaded: 0%;
+  width: 100%; height: 24px; margin: 0; background: transparent; cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+.j-seek input:focus-visible { outline: 2px solid #6aaeff; outline-offset: 2px; border-radius: 4px; }
+.j-seek input::-webkit-slider-runnable-track {
+  height: 5px; border-radius: 3px; transition: height 0.12s;
+  background: linear-gradient(to right, #0067f2 0 var(--played), rgb(255 255 255 / 0.34) var(--played) var(--loaded), rgb(255 255 255 / 0.12) var(--loaded));
+}
+.j-seek input::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 15px; height: 15px; margin-top: -5px; border-radius: 50%;
+  background: #fff; border: 0; box-shadow: 0 0 0 4px rgb(0 103 242 / 0.45); transition: scale 0.12s;
+}
+.j-seek:hover input::-webkit-slider-runnable-track, .j-seek input:active::-webkit-slider-runnable-track { height: 7px; }
+.j-seek:hover input::-webkit-slider-thumb { margin-top: -4px; scale: 1.15; }
+.j-seek input::-moz-range-track { height: 5px; border-radius: 3px; background: linear-gradient(to right, rgb(255 255 255 / 0.34) 0 var(--loaded), rgb(255 255 255 / 0.12) var(--loaded)); }
+.j-seek input::-moz-range-progress { height: 5px; border-radius: 3px; background: #0067f2; }
+.j-seek input::-moz-range-thumb { width: 15px; height: 15px; border: 0; border-radius: 50%; background: #fff; }
+.j-seek input:disabled { cursor: default; opacity: 0.4; }
+.j-tip {
+  position: absolute; bottom: calc(100% + 4px); left: 0; translate: -50% 0; padding: 3px 8px; border-radius: 4px;
+  background: rgb(0 0 0 / 0.85); color: #fff; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums;
+  pointer-events: none; opacity: 0; transition: opacity 0.12s;
+}
+.j-seek:hover .j-tip { opacity: 1; }
+.j-player.is-missing .j-tip { display: none; }
+
+.j-bar { display: flex; align-items: center; gap: 12px; }
+.j-toggle {
+  display: grid; place-items: center; width: 40px; height: 34px; padding: 0; border: 0; border-radius: 6px;
+  background: transparent; color: #fff; cursor: pointer;
+}
+.j-toggle svg { grid-area: 1 / 1; width: 26px; height: 26px; display: none; }
+.j-toggle .i-play, .j-toggle .i-pause { fill: currentColor; }
+.j-toggle .i-replay { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.j-player:not(.is-playing):not(.is-ended) .j-toggle .i-play,
+.j-player.is-playing .j-toggle .i-pause,
+.j-player.is-ended .j-toggle .i-replay { display: block; }
+.j-toggle:hover, .j-toggle:focus-visible { background: var(--hover); }
+.j-toggle:disabled { opacity: 0.35; cursor: default; background: none; }
+.j-time { color: var(--ink); font-size: 15px; font-weight: 600; }
+.j-time i { font-style: normal; color: var(--muted); padding: 0 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .j-mode, .j-big, .j-mode-ico { transition: none; }
+  .j-mode:hover, .j-mode:focus-visible { transform: none; }
+}

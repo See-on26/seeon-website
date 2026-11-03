@@ -1,0 +1,68 @@
+{
+  "note": "심사위원 시연. 사례 3개 × 동시·교차(균형) 모드 = 영상 6개. 영상은 videos/<사례>-<모드>.mp4 로 넣는다(예: videos/a-sync.mp4). seconds 는 메뉴판에 적은 길이이고, 영상이 있으면 실제 길이로 바꿔 보여 준다.",
+  "cases": [
+    {
+      "id": "a",
+      "label": "Case A",
+      "title": "사장님 최애 간식이 뭐라구요?",
+      "quote": "사장님 최애 간식이 이거 아닙니까?",
+      "thumb": "thumbs/a.jpg?v=63f99182",
+      "modes": {
+        "sync": {
+          "video": "videos/a-sync.mp4?v=079a3b04",
+          "auto": 1,
+          "manual": 0,
+          "seconds": 23
+        },
+        "cross": {
+          "video": "videos/a-cross.mp4?v=c0c4650c",
+          "auto": 1,
+          "manual": 0,
+          "seconds": 29
+        }
+      }
+    },
+    {
+      "id": "b",
+      "label": "Case B",
+      "title": "10.9? 9.3? 그게 뭔데요?",
+      "quote": "근데 보시면 10.9, 9.3 거의 2배 가까이 돼요",
+      "thumb": "thumbs/b.jpg?v=0ae93df0",
+      "modes": {
+        "sync": {
+          "video": "videos/b-sync.mp4?v=846638f4",
+          "auto": 2,
+          "manual": 2,
+          "seconds": 45
+        },
+        "cross": {
+          "video": "videos/b-cross.mp4?v=672fecd8",
+          "auto": 2,
+          "manual": 2,
+          "seconds": 47
+        }
+      }
+    },
+    {
+      "id": "c",
+      "label": "Case C",
+      "title": "카드에 뭐가 적혀있는데요?",
+      "quote": "자, 그럼 여기 4장의 카드가 있습니다",
+      "thumb": "thumbs/c.jpg?v=484e580b",
+      "modes": {
+        "sync": {
+          "video": "videos/c-sync.mp4?v=05bdcd67",
+          "auto": 1,
+          "manual": 1,
+          "seconds": 36
+        },
+        "cross": {
+          "video": "videos/c-cross.mp4?v=2bd67429",
+          "auto": 1,
+          "manual": 1,
+          "seconds": 42
+        }
+      }
+    }
+  ]
+}

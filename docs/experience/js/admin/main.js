@@ -1,14 +1,14 @@
-import { $, api, clear, h, toast } from '../common.js?v=fae2ba08';
-import * as analysis from './analysis.js?v=fae2ba08';
-import * as contents from './contents.js?v=fae2ba08';
-import * as dashboard from './dashboard.js?v=fae2ba08';
-import * as exportsView from './exports.js?v=fae2ba08';
-import * as media from './media.js?v=fae2ba08';
-import * as participants from './participants.js?v=fae2ba08';
-import * as quiz from './quiz.js?v=fae2ba08';
-import * as settings from './settings.js?v=fae2ba08';
-import { setUnauthorizedHandler } from './ui.js?v=fae2ba08';
-import { mountLogos } from '../logo.js?v=fae2ba08';
+import { $, api, clear, h, toast } from '../common.js?v=691eea33';
+import * as analysis from './analysis.js?v=691eea33';
+import * as contents from './contents.js?v=691eea33';
+import * as dashboard from './dashboard.js?v=691eea33';
+import * as exportsView from './exports.js?v=691eea33';
+import * as media from './media.js?v=691eea33';
+import * as participants from './participants.js?v=691eea33';
+import * as quiz from './quiz.js?v=691eea33';
+import * as settings from './settings.js?v=691eea33';
+import { setUnauthorizedHandler } from './ui.js?v=691eea33';
+import { mountLogos } from '../logo.js?v=691eea33';
 
 mountLogos();
 

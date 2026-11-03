@@ -336,6 +336,15 @@ def stamp_experience(root):
                 if mp3.is_file():
                     cue['v'] = file_ver(mp3)
         visitor.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    judge = root / 'data' / 'judge' / 'judge.json'
+    if judge.exists():  # 심사위원 시연: 영상·사진 주소에 버전
+        data = json.loads(judge.read_text(encoding='utf-8'))
+        for case in data.get('cases', []):
+            files = [(case, 'thumb')] + [(m, 'video') for m in case.get('modes', {}).values()]
+            for obj, key in files:
+                if obj.get(key) and (judge.parent / obj[key]).is_file():
+                    obj[key] += '?v=' + file_ver(judge.parent / obj[key])
+        judge.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     return ver
 
 

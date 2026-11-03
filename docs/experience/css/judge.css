@@ -13,11 +13,6 @@
 .j-card .eyebrow-mono { margin-bottom: clamp(6px, 1.2vh, 12px); }
 .j-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; }
 .judge-page .j-head .page-title { margin: 0; font-size: clamp(26px, 4.6vh, 42px); }
-.j-count {
-  display: inline-block; margin: 0; padding: 7px 14px; border-radius: 999px;
-  background: rgb(0 103 242 / 0.18); border: 1px solid rgb(90 169 255 / 0.35); color: #fff; font-size: clamp(13px, 1.9vh, 15px); font-weight: 650;
-}
-.j-count i { font-style: normal; color: #9cc8ff; padding: 0 0.4em; }
 
 /* 사례 세 칸: 칸 사이에 세로 줄. 칸마다 안쪽 여백을 같게 두고 바깥으로 그만큼 내밀어 세 칸의 사진 크기를 똑같이 맞춘다 */
 .j-cases {
@@ -25,18 +20,14 @@
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: clamp(10px, 2vh, 20px) calc(var(--pad) * -1) 0;
   padding: clamp(10px, 2vh, 20px) 0; border-block: 1px solid var(--line);
 }
-.j-case { display: flex; flex-direction: column; gap: clamp(8px, 1.4vh, 14px); min-width: 0; padding: 0 var(--pad); }
+.j-case { container-type: inline-size; display: flex; flex-direction: column; gap: clamp(8px, 1.4vh, 14px); min-width: 0; padding: 0 var(--pad); }
 .j-case + .j-case { border-left: 1px solid var(--line); }
-/* 사진은 칸 너비를 채우되, 낮은 화면에서는 높이에 맞춰 줄인다(가운데) */
+/* 제목 「Case A. 사장님 최애 간식이 뭐라구요?」: 칸 너비에 맞춘 크기로 한 줄에 */
+.j-case-h { margin: 0; font-size: clamp(16px, 5.4cqi, 30px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 사진은 칸 가운데에, 화면 높이에 맞춰 크기를 정한다 */
 .j-thumb {
-  display: block; width: 100%; max-width: calc(25.5vh * 546 / 305); height: auto; margin-inline: auto; aspect-ratio: 546 / 305; object-fit: cover;
+  display: block; width: 100%; max-width: calc(22.5vh * 546 / 305); height: auto; margin-inline: auto; aspect-ratio: 546 / 305; object-fit: cover;
   border-radius: 6px; border: 1px solid rgb(255 255 255 / 0.14); background: #fafaf7;
-}
-.j-case-text { display: grid; gap: clamp(4px, 0.9vh, 10px); min-width: 0; }
-.j-case-h { display: grid; justify-items: start; gap: 6px; margin: 0; font-size: clamp(18px, 3vh, 26px); font-weight: 780; line-height: 1.3; }
-.j-chip {
-  flex: none; padding: 2px 11px; border-radius: 999px; font-size: clamp(12px, 1.8vh, 14px); font-weight: 700; line-height: 1.6;
-  color: #9cc8ff; background: rgb(0 103 242 / 0.2); border: 1px solid rgb(90 169 255 / 0.4);
 }
 .j-quote {
   margin: 0; padding: 1px 0 1px 12px; border-left: 3px solid rgb(255 255 255 / 0.22);
@@ -71,10 +62,6 @@
 .j-mode.is-missing .j-mode-name, .j-mode.is-missing .j-mode-meta { color: var(--muted); }
 .j-mode.is-missing .j-len { color: var(--muted); font-size: clamp(12px, 1.8vh, 14px); font-weight: 600; }
 
-.j-legend { margin-top: clamp(8px, 1.6vh, 16px); color: var(--muted); font-size: clamp(12px, 1.8vh, 14px); line-height: 1.7; }
-.j-legend { display: grid; grid-template-columns: repeat(2, max-content); column-gap: clamp(24px, 3vw, 48px); }
-.j-legend p { display: contents; }
-.j-legend b { color: var(--ink); font-weight: 700; margin-right: 0.5em; }
 .j-error { margin: 20px 0; color: var(--ink-2); }
 
 /* 좁은 화면(휴대폰 등)에서는 세 칸을 위아래로 쌓는다 */
@@ -84,7 +71,6 @@
   .j-case + .j-case { border-left: 0; }
   .j-thumb { max-width: 420px; margin-inline: 0; }
 }
-@media (max-width: 760px) { .j-legend { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 560px) { .judge-page .topbar-meta { display: none; } }
 
 /* ---------- 재생 화면 ---------- */

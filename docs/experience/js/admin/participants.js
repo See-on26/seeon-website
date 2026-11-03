@@ -1,5 +1,5 @@
-import { clear, confirmDialog, fmtAgo, fmtClock, fmtDateTime, fmtPct, h, modal, toast } from '../common.js?v=6aa9959f';
-import { adminApi, condChip, section, statusBadge, table, viewHead } from './ui.js?v=6aa9959f';
+import { clear, confirmDialog, fmtAgo, fmtClock, fmtDateTime, fmtPct, h, modal, toast } from '../common.js?v=2ffc4aa1';
+import { adminApi, condChip, section, statusBadge, table, viewHead } from './ui.js?v=2ffc4aa1';
 
 const STAGE = { registered: '실험 안내', block: '파트 진행', survey: '사후 설문', done: '완료' };
 const BLOCK = { pending: '시작 전', playing: '재생 중', answering: '문제 푸는 중', done: '끝남' };

@@ -36,6 +36,7 @@ const length = (sec) => {
   return s >= 60 ? `${Math.floor(s / 60)}분${s % 60 ? ` ${s % 60}초` : ''}` : `${s}초`;
 };
 const adCount = (m) => `자동 AD ${m.auto} · 수동 AD ${m.manual}`;
+const caseTitle = (k) => `${k.label}. ${k.title}`; // 「Case A. 사장님 최애 간식이 뭐라구요?」
 
 // ---------- 고르는 화면 ----------
 function playIcon() {
@@ -72,10 +73,9 @@ function renderMenu(cases) {
       return link;
     });
     return h('article', { class: 'j-case', 'aria-labelledby': `case-${kase.id}` },
+      h('h2', { class: 'j-case-h', id: `case-${kase.id}` }, caseTitle(kase)),
       h('img', { class: 'j-thumb', src: DATA + kase.thumb, alt: `${kase.label} 발표 화면. 시온이 알려 줄 부분은 가려 두었습니다.`, decoding: 'async' }),
-      h('div', { class: 'j-case-text' },
-        h('h2', { class: 'j-case-h', id: `case-${kase.id}` }, h('span', { class: 'j-chip', lang: 'en' }, kase.label), h('span', null, kase.title)),
-        h('blockquote', { class: 'j-quote' }, `“${kase.quote}”`)),
+      h('blockquote', { class: 'j-quote' }, `“${kase.quote}”`),
       h('div', { class: 'j-modes', role: 'group', 'aria-label': `${kase.label} 영상 고르기` }, buttons));
   });
   clear($('cases'), rows);
@@ -169,10 +169,9 @@ function skip(sec) {
 
 function openPlayer(item) {
   current = item;
-  $('p-case').textContent = item.kase.label;
   $('p-mode').textContent = MODES[item.mode];
   $('p-meta').textContent = adCount(item.info);
-  $('p-title').textContent = item.kase.title;
+  $('p-title').textContent = caseTitle(item.kase);
   $('p-dur').textContent = clock(item.duration, true);
   $('p-cur').textContent = '0:00';
   $('p-missing-path').textContent = `experience/${item.url}`;

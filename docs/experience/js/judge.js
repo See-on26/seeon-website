@@ -1,8 +1,8 @@
 // 심사위원 시연: 사례 3개 × 동시·교차(균형) 모드 = 영상 6개 중 하나를 골라 본다.
 // 고르는 화면(judge.html)과 재생 화면(judge.html#a-sync)을 주소의 # 로 오간다.
-import { clear, h } from './common.js?v=2ffc4aa1';
-import { startScene, startWaves } from './fx.js?v=2ffc4aa1';
-import { mountLogos } from './logo.js?v=2ffc4aa1';
+import { clear, h } from './common.js?v=2998d57d';
+import { startScene, startWaves } from './fx.js?v=2998d57d';
+import { mountLogos } from './logo.js?v=2998d57d';
 
 const DATA = 'data/judge/';
 const MODES = { sync: '동시 모드', cross: '교차 모드' };
@@ -45,7 +45,7 @@ function playIcon() {
   svg.setAttribute('viewBox', '0 0 24 24');
   svg.setAttribute('aria-hidden', 'true');
   const path = document.createElementNS(ns, 'path');
-  path.setAttribute('d', 'M7 4.5v15l12.5-7.5z');
+  path.setAttribute('d', 'M6.8 4.5v15l12.5-7.5z'); // 삼각형은 상자 가운데보다 폭의 1/12 만큼 오른쪽에 둬야 원 가운데로 보인다
   svg.append(path);
   return svg;
 }

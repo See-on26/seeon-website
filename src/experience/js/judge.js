@@ -45,7 +45,7 @@ function playIcon() {
   svg.setAttribute('viewBox', '0 0 24 24');
   svg.setAttribute('aria-hidden', 'true');
   const path = document.createElementNS(ns, 'path');
-  path.setAttribute('d', 'M7 4.5v15l12.5-7.5z');
+  path.setAttribute('d', 'M6.8 4.5v15l12.5-7.5z'); // 삼각형은 상자 가운데보다 폭의 1/12 만큼 오른쪽에 둬야 원 가운데로 보인다
   svg.append(path);
   return svg;
 }
